@@ -1,10 +1,18 @@
-use std::sync::mpsc::{self, Sender, Receiver};
-use std::{thread::{self, JoinHandle}, time::Duration};
-use copypasta::{ClipboardContext, ClipboardError, ClipboardProvider};
 
-pub fn monitor_clipboard<F>(on_change: F) -> Result<(Sender<()>, JoinHandle<()>), ClipboardError>
+use copypasta::{ClipboardContext, ClipboardProvider};
+use std::{
+    error::Error,
+    sync::mpsc::{self, Receiver, Sender},
+    thread::{self, JoinHandle},
+    time::Duration,
+};
+use chrono::Utc;
+
+pub fn monitor_clipboard<F>(
+    on_change: F,
+) -> Result<(Sender<()>, JoinHandle<()>), Box<dyn Error>>
 where
-    F: Fn(String) + Send + 'static,
+    F: Fn(String, String) + Send + 'static,
 {
     let (stop_tx, stop_rx): (Sender<()>, Receiver<()>) = mpsc::channel();
     let mut ctx = ClipboardContext::new()?;
@@ -14,15 +22,11 @@ where
             if stop_rx.try_recv().is_ok() {
                 break;
             }
-            match ctx.get_contents() {
-                Ok(current) => {
-                    if current != last_clip && !current.trim().is_empty() {
-                        on_change(current.clone());
-                        last_clip = current;
-                    }
-                }
-                Err(err) => {
-                    eprintln!("clipboard error: {:?}", err);
+            if let Ok(current) = ctx.get_contents() {
+                if !current.trim().is_empty() && current != last_clip {
+                    let timestamp = Utc::now().to_rfc3339();
+                    on_change(current.clone(), timestamp);
+                    last_clip = current;
                 }
             }
             thread::sleep(Duration::from_millis(500));
