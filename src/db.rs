@@ -38,4 +38,3 @@ pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(String,
     }
     Ok(clips)
 }
-
