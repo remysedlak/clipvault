@@ -4,7 +4,8 @@ use eframe::{egui, Frame};
 use rusqlite::Connection;
 
 pub struct ClipVaultApp {
-    clips: Vec<String>,
+    // Content, Timestamp
+    clips: Vec<(String, String)>,
     db: Connection,
 }
 
@@ -23,7 +24,7 @@ impl eframe::App for ClipVaultApp {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for clip in &self.clips {
                     ui.separator();
-                    ui.label(clip);
+                    ui.label(format!("{} - {}", clip.0, clip.1));
                     
                 }
             });
