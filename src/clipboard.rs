@@ -1,6 +1,10 @@
-use std::sync::mpsc::{self, Sender, Receiver};
-use std::{thread::{self, JoinHandle}, time::Duration};
-use copypasta::{ClipboardContext, ClipboardError, ClipboardProvider};
+use copypasta::{ClipboardContext, ClipboardProvider};
+use std::{
+    error::Error,
+    sync::mpsc::{self, Receiver, Sender},
+    thread::{self, JoinHandle},
+    time::Duration,
+};
 use chrono::Utc;
 
 pub fn monitor_clipboard<F>(
@@ -18,9 +22,9 @@ where
                 break;
             }
             if let Ok(current) = ctx.get_contents() {
-                if current != last_clip && !current.trim().is_empty() {
+                if !current.trim().is_empty() && current != last_clip {
                     let timestamp = Utc::now().to_rfc3339();
-                    on_change(current.clone(), timestamp.clone());
+                    on_change(current.clone(), timestamp);
                     last_clip = current;
                 }
             }
