@@ -22,8 +22,9 @@ impl eframe::App for ClipVaultApp {
 
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for clip in &self.clips {
-                    ui.label(clip);
                     ui.separator();
+                    ui.label(clip);
+                    
                 }
             });
         });
