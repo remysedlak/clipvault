@@ -21,12 +21,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     {
         let db = db.clone();
         thread::spawn(move || {
-            clipboard::monitor_clipboard(move |clip, timestamp| {
+            clipboard::monitor_clipboard(move |clip| {
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+        .to_string();  // Convert to string immediately
+    
     let db = db.lock().unwrap();
     if let Err(e) = db::save_clip(&db, &clip, &timestamp) {
         eprintln!("Failed to save clip: {}", e);
-    } else {
-        println!("🔹 Saved: {} at {}", clip, timestamp);
     }
 });
         });
