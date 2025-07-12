@@ -1,0 +1,27 @@
+[package]
+name = "clipvault"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "clipvault"
+path = "src/main.rs"
+
+[[bin]]
+name = "gui"
+path = "src/bin/gui.rs"
+
+[lib]
+name = "clipvault"
+path = "src/lib.rs"
+
+[dependencies]
+tray-icon = "0.14"
+winit = "0.29"
+image = "0.24"
+eframe = "0.28"
+egui = "0.27"
+rusqlite = { version = "0.30", features = ["bundled"] }
+arboard = "3.6"   # clipboard access crate
+copypasta = "0.10.2"
+
