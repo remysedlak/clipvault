@@ -1,4 +1,3 @@
-
 use copypasta::{ClipboardContext, ClipboardProvider};
 use std::{
     error::Error,
