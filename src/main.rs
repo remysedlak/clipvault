@@ -21,14 +21,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     {
         let db = db.clone();
         thread::spawn(move || {
-            clipboard::monitor_clipboard(move |clip| {
-                let db = db.lock().unwrap();
-                if let Err(e) = db::save_clip(&db, &clip) {
-                    eprintln!("Failed to save clip: {}", e);
-                } else {
-                    println!("🔹 Clip saved: {}", clip);
-                }
-            });
+            clipboard::monitor_clipboard(move |clip, timestamp| {
+    let db = db.lock().unwrap();
+    if let Err(e) = db::save_clip(&db, &clip, &timestamp) {
+        eprintln!("Failed to save clip: {}", e);
+    } else {
+        println!("🔹 Saved: {} at {}", clip, timestamp);
+    }
+});
         });
     }
 

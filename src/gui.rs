@@ -1,10 +1,10 @@
 use crate::db;
-
-use eframe::{egui, Frame};
+use eframe::{egui::{self, Color32, Frame as EguiFrame, Stroke}, App as _};
 use rusqlite::Connection;
 
 pub struct ClipVaultApp {
-    clips: Vec<String>,
+    // Content, Timestamp
+    clips: Vec<(String, String)>,
     db: Connection,
 }
 
@@ -16,14 +16,30 @@ impl ClipVaultApp {
 }
 
 impl eframe::App for ClipVaultApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("📋 ClipVault - Recent Clips");
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                for clip in &self.clips {
-                    ui.label(clip);
-                    ui.separator();
+                for (content, timestamp) in &self.clips {
+                    // This is where we add a styled frame for each entry
+                    EguiFrame::none()
+                        .fill(Color32::from_rgb(240, 240, 240))
+                        .stroke(Stroke::new(1.0, Color32::LIGHT_BLUE))
+                        .inner_margin(crate::gui::egui::Margin::symmetric(8.0, 6.0))
+                        .rounding(6.0)
+                        .show(ui, |ui| {
+                            ui.horizontal(|ui| {
+                                ui.label("📝");
+                                ui.monospace(content);
+                            });
+                            ui.horizontal(|ui| {
+                                ui.label("🕒");
+                                ui.monospace(timestamp);
+                            });
+                        });
+
+                    ui.add_space(6.0); // spacing between entries
                 }
             });
         });
