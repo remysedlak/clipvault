@@ -7,6 +7,7 @@ use winit::event_loop::{EventLoop, ControlFlow};
 use std::{sync::{Arc, Mutex, mpsc}, thread, error::Error};
 use eframe::NativeOptions;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 enum AppEvent {
     OpenGui,
@@ -21,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     {
         let db = db.clone();
         thread::spawn(move || {
-            clipboard::monitor_clipboard(move |clip, timestamp| {
+            clipboard::monitor_clipboard(move |clip, _timestamp| {
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
@@ -32,12 +33,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     if let Err(e) = db::save_clip(&db, &clip, &timestamp) {
         eprintln!("Failed to save clip: {}", e);
     }
+    else {
+        println!("Saved clip: {}, {}", clip, timestamp);
+    }
 });
         });
     }
 
     // Create channel for GUI communication
-    let (gui_tx, gui_rx) = mpsc::channel::<AppEvent>();
+    let (__gui_tx, gui_rx) = mpsc::channel::<AppEvent>();
     
     // Start GUI handler thread
     thread::spawn(move || {

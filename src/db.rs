@@ -1,5 +1,4 @@
 use rusqlite::{Connection, Result};
-use std::time::{SystemTime, UNIX_EPOCH};
 use rusqlite::params;
 
 pub fn init_db() -> Result<Connection> {
@@ -14,8 +13,6 @@ pub fn init_db() -> Result<Connection> {
     )?;
     Ok(conn)
 }
-
-use rusqlite::ToSql;
 
 pub fn save_clip(conn: &Connection, clip: &str, timestamp: &str) -> Result<(), rusqlite::Error> {
     conn.execute(
