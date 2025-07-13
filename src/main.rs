@@ -6,7 +6,6 @@ use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem, MenuEvent}};
 use winit::event_loop::{EventLoop, ControlFlow};
 use std::{sync::{Arc, Mutex, mpsc}, thread, error::Error};
 use eframe::NativeOptions;
-use chrono::Utc; // Added for timestamp generation
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -23,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     {
         let db = db.clone();
         thread::spawn(move || {
-            clipboard::monitor_clipboard(move |clip, _old_timestamp| {
+            let _ = clipboard::monitor_clipboard(move |clip, _old_timestamp| {
     // Generate current timestamp as i64 (seconds since epoch)
     let timestamp = chrono::Utc::now().timestamp();
 

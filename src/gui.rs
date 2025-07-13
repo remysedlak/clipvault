@@ -1,7 +1,8 @@
 use crate::db;
-use chrono::{DateTime, Datelike, FixedOffset, Timelike};
 use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle};
 use rusqlite::Connection;
+use chrono::{DateTime, Local};
+
 pub struct ClipVaultApp {
     // Content, Timestamp
     clips: Vec<(String, i64)>,
@@ -30,6 +31,7 @@ impl eframe::App for ClipVaultApp {
                 if ui.button("🔄 Refresh").clicked() {
                     self.clips = db::load_recent_clips(&self.db, 20).unwrap_or_default();
                 }
+                ui.button("📅")
             });
         });
 
@@ -129,17 +131,8 @@ impl eframe::App for ClipVaultApp {
     }
 }
 
-use chrono::{NaiveDateTime, Local};
-use chrono::TimeZone;
-
 fn format_timestamp(timestamp: i64) -> String {
-    // Convert seconds since epoch to NaiveDateTime
-    let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0)
-        .unwrap_or_else(|| NaiveDateTime::from_timestamp(0, 0));
-    
-    // Convert to local time zone
-    let datetime_local = Local.from_local_datetime(&naive).unwrap();
-    
-    // Format nicely, e.g. "2025-07-13 22:15:30"
-    datetime_local.format("%Y-%m-%d %H:%M:%S").to_string()
+    DateTime::from_timestamp(timestamp, 0)
+        .map(|dt| dt.with_timezone(&Local).format("%Y-%m-%d %H:%M:%S").to_string())
+        .unwrap_or_else(|| "Invalid timestamp".to_string())
 }
