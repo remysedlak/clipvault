@@ -151,7 +151,7 @@ impl eframe::App for ClipVaultApp {
                                                 // Copy button with fixed size
                                                 if ui
                                                     .add_sized(
-                                                        [70.0, 24.0],
+                                                        [50.0, 20.0],
                                                         egui::Button::new("📋 Copy"),
                                                     )
                                                     .on_hover_text("Copy this text to clipboard")
@@ -166,7 +166,7 @@ impl eframe::App for ClipVaultApp {
                                                 // Delete button with fixed size
                                                 if ui
                                                     .add_sized(
-                                                        [80.0, 24.0],
+                                                        [50.0, 20.0],
                                                         egui::Button::new("🗑 Delete"), // .fill(Color32::from_rgb(255, 230, 230)),
                                                     )
                                                     .on_hover_text("Delete this entry")
@@ -181,7 +181,7 @@ impl eframe::App for ClipVaultApp {
                                                     if is_pinned { "📌 Unpin" } else { "📌" };
                                                 if ui
                                                     .add_sized(
-                                                        [70.0, 24.0],
+                                                        [50.0, 20.0],
                                                         egui::Button::new(pin_label),
                                                     )
                                                     .on_hover_text(if is_pinned {
