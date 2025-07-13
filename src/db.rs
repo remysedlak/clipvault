@@ -17,6 +17,18 @@ pub fn init_db() -> Result<Connection> {
     Ok(conn)
 }
 
+pub fn delete_clip(conn: &Connection, id: i64) -> Result<usize> {
+    println!("Deleting clip with ID: {}", id);
+    let result = conn.execute("DELETE FROM clips WHERE id = ?1", params![id]);
+    match result {
+        Ok(rows) => println!("Deleted {} row(s).", rows),
+        Err(ref e) => println!("Error deleting clip: {}", e),
+    }
+    result
+}
+
+
+
 pub fn save_clip(conn: &Connection, clip: &str, timestamp: i64) -> Result<(), rusqlite::Error> {
     println!("Saving clip: '{}', timestamp: '{}'", clip, timestamp);
     let result = conn.execute(
