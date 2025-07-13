@@ -36,24 +36,28 @@ impl eframe::App for ClipVaultApp {
                 ui.separator();
                 ui.label("Recent clipboard history");
 
-                // Optional: add dark/light toggle or refresh
-                if ui.button("🔄 Refresh").clicked() {
-                    self.clips = db::load_recent_clips(&self.db, 20).unwrap_or_default();
-                }
+                ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                    // Dark/Light mode toggle button
+                    let mode_label = if self.darkmode {
+                        "🌙 Dark"
+                    } else {
+                        "🔆 Light"
+                    };
+                    if ui.button(mode_label).clicked() {
+                        self.darkmode = !self.darkmode;
+                    }
 
-                // Dark/Light mode toggle button
-                let mode_label = if self.darkmode {
-                    "🌙 Dark"
-                } else {
-                    "🔆 Light"
-                };
-                if ui.button(mode_label).clicked() {
-                    self.darkmode = !self.darkmode;
-                }
-                //@@TODO Future calender feature
-                // let _ = ui.button("📅");
+                    // Refresh button
+                    if ui.button("🔄 Refresh").clicked() {
+                        self.clips = db::load_recent_clips(&self.db, 20).unwrap_or_default();
+                    }
+
+                    //@@TODO Future calendar feature
+                    // let _ = ui.button("📅");
+                });
             });
-        });
+            });
+        
 
         egui::CentralPanel::default()
             // .frame(egui::Frame::none().fill(Color32::from_rgb(245, 245, 245)))
