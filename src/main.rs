@@ -6,6 +6,7 @@ use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem, MenuEvent}};
 use winit::event_loop::{EventLoop, ControlFlow};
 use std::{sync::{Arc, Mutex, mpsc}, thread, error::Error};
 use eframe::NativeOptions;
+use chrono::Utc; // Added for timestamp generation
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -22,21 +23,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     {
         let db = db.clone();
         thread::spawn(move || {
-            clipboard::monitor_clipboard(move |clip, _timestamp| {
-    let timestamp = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
-        .to_string();  // Convert to string immediately
-    
+            clipboard::monitor_clipboard(move |clip, _old_timestamp| {
+    // Generate current timestamp as i64 (seconds since epoch)
+    let timestamp = chrono::Utc::now().timestamp();
+
     let db = db.lock().unwrap();
-    if let Err(e) = db::save_clip(&db, &clip, &timestamp) {
+    if let Err(e) = db::save_clip(&db, &clip, timestamp) {
         eprintln!("Failed to save clip: {}", e);
-    }
-    else {
+    } else {
         println!("Saved clip: {}, {}", clip, timestamp);
     }
 });
+
         });
     }
 

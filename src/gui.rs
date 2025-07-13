@@ -4,7 +4,7 @@ use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, S
 use rusqlite::Connection;
 pub struct ClipVaultApp {
     // Content, Timestamp
-    clips: Vec<(String, String)>,
+    clips: Vec<(String, i64)>,
     db: Connection,
 }
 
@@ -117,33 +117,8 @@ impl eframe::App for ClipVaultApp {
                                     // Timestamp row
                                     ui.horizontal(|ui| {
                                         ui.label("🕒");
-                                        let datetime: DateTime<FixedOffset> =
-                                            timestamp.parse().unwrap();
-
-                                        // Extract the components you want
-                                        let month = datetime.format("%B").to_string(); // Full month name
-                                        let day = datetime.day();
-                                        let year = datetime.year();
-
-                                        // Add "st", "nd", "rd", or "th" suffix
-                                        let suffix = match day {
-                                            11 | 12 | 13 => "th",
-                                            d if d % 10 == 1 => "st",
-                                            d if d % 10 == 2 => "nd",
-                                            d if d % 10 == 3 => "rd",
-                                            _ => "th",
-                                        };
-
-                                        // Format time in 12-hour clock
-                                        let time = datetime.format("%I:%M %p").to_string(); // e.g., "10:20 PM"
-
-                                        // Remove leading 0 from hour if needed
-                                        let time = time.strip_prefix('0').unwrap_or(&time);
-
-                                        // Combine everything
-                                        let result =
-                                            format!("{month} {day}{suffix}, {year}, {time}");
-                                        ui.monospace(result);
+                                        
+                                        ui.monospace(format_timestamp(*timestamp));
                                     });
                                 });
 
@@ -152,4 +127,19 @@ impl eframe::App for ClipVaultApp {
                     });
             });
     }
+}
+
+use chrono::{NaiveDateTime, Local};
+use chrono::TimeZone;
+
+fn format_timestamp(timestamp: i64) -> String {
+    // Convert seconds since epoch to NaiveDateTime
+    let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0)
+        .unwrap_or_else(|| NaiveDateTime::from_timestamp(0, 0));
+    
+    // Convert to local time zone
+    let datetime_local = Local.from_local_datetime(&naive).unwrap();
+    
+    // Format nicely, e.g. "2025-07-13 22:15:30"
+    datetime_local.format("%Y-%m-%d %H:%M:%S").to_string()
 }
