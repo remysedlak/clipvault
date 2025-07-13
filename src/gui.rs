@@ -27,7 +27,7 @@ impl eframe::App for ClipVaultApp {
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            ui.horizontal_wrapped(|ui| {
+            ui.horizontal(|ui| {
                 ui.heading("📋 ClipVault");
                 ui.separator();
                 ui.label("Recent clipboard history");
@@ -84,15 +84,20 @@ impl eframe::App for ClipVaultApp {
                                 // .fill(Color32::from_rgb(255, 255, 255))
                                 // .stroke(Stroke::new(1.0, Color32::LIGHT_GRAY))
                                 .rounding(8.0)
-                                .inner_margin(crate::gui::egui::Margin::symmetric(10.0, 10.0))
-                                .outer_margin(crate::gui::egui::Margin::symmetric(20.0, 0.0))
+                                .inner_margin(egui::Margin::symmetric(10.0, 10.0))
+                                .outer_margin(egui::Margin::symmetric(20.0, 0.0))
+                                .fill(if self.darkmode {
+                                    Color32::from_rgb(40, 40, 40)
+                                } else {
+                                    Color32::from_rgb(200, 200, 200)
+                                })
+                                .stroke(Stroke::new(1.0, Color32::BLACK))
+                                       
                                 .show(ui, |ui| {
                                     // Content row with black border, wrapping text, and copy button
                                     EguiFrame::none()
                                         // .fill(Color32::from_rgb(250, 250, 250))
-                                        .stroke(Stroke::new(1.0, Color32::BLACK))
-                                        .rounding(6.0)
-                                        .inner_margin(crate::gui::egui::Margin::symmetric(6.0, 6.0))
+
                                         .show(ui, |ui| {
                                             ui.vertical(|ui| {
                                                 let max_width = ui.available_width();
@@ -170,7 +175,7 @@ impl eframe::App for ClipVaultApp {
                                     }
 
                                     ui.add_space(6.0);
-
+                                    ui.separator();
                                     // Timestamp row
                                     ui.horizontal(|ui| {
                                         ui.label("🕒");
