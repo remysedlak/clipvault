@@ -72,6 +72,7 @@ impl eframe::App for ClipVaultApp {
                                 .stroke(Stroke::new(1.0, Color32::LIGHT_GRAY))
                                 .rounding(8.0)
                                 .inner_margin(crate::gui::egui::Margin::symmetric(10.0, 10.0))
+                                .outer_margin(crate::gui::egui::Margin::symmetric(20.0, 0.0))
                                 .show(ui, |ui| {
                                     // Content row with black border, wrapping text, and copy button
                                     EguiFrame::none()
