@@ -65,7 +65,9 @@ impl eframe::App for ClipVaultApp {
                     .show(ui, |ui| {
                         // Track if a clip was deleted this frame
                         let mut deleted_id: Option<i64> = None;
+                        // Track if a clip was pinned/unpinned this frame
                         let mut pinned_id: Option<i64> = None;
+                        
                         if self.clips.is_empty() {
                             ui.centered_and_justified(|ui| {
                                 ui.label(
@@ -185,7 +187,6 @@ impl eframe::App for ClipVaultApp {
                                                     })
                                                     .clicked()
                                                 {
-                                                    let _ = db::toggle_pin_clip(&self.db, *id);
                                                     pinned_id = Some(*id);
                                                 }
                                             },
@@ -195,8 +196,8 @@ impl eframe::App for ClipVaultApp {
 
                             ui.add_space(12.0); // spacing between clips
 
-                            // If deleted, break to avoid double-borrow
-                            if deleted_id.is_some() {
+                            // If deleted or pinned, break to avoid double-borrow
+                            if deleted_id.is_some() || pinned_id.is_some() {
                                 break;
                             }
                         }
@@ -204,6 +205,12 @@ impl eframe::App for ClipVaultApp {
                         // Actually delete and refresh after the loop
                         if let Some(id) = deleted_id {
                             let _ = db::delete_clip(&self.db, id);
+                            self.clips = db::load_recent_clips(&self.db, 20).unwrap_or_default();
+                        }
+                        
+                        // Actually pin/unpin and refresh after the loop
+                        if let Some(id) = pinned_id {
+                            let _ = db::toggle_pin_clip(&self.db, id);
                             self.clips = db::load_recent_clips(&self.db, 20).unwrap_or_default();
                         }
                     });
