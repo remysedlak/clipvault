@@ -4,7 +4,7 @@ use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, S
 use rusqlite::Connection;
 
 pub struct ClipVaultApp {
-    // Content, Timestamp
+    // id, content, timestamp, pinned
     clips: Vec<(i64, String, i64, bool)>,
     db: Connection,
     darkmode: bool,
