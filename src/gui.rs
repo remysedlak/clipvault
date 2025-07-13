@@ -5,7 +5,7 @@ use chrono::{DateTime, Local, Datelike};
 
 pub struct ClipVaultApp {
     // Content, Timestamp
-    clips: Vec<(i64, String, i64)>,
+    clips: Vec<(i64, String, i64, bool)>,
     db: Connection,
 }
 
@@ -45,6 +45,7 @@ impl eframe::App for ClipVaultApp {
                     .show(ui, |ui| {
                         // Track if a clip was deleted this frame
                         let mut deleted_id: Option<i64> = None;
+                        let mut pinned_id: Option<i64> = None;
                         if self.clips.is_empty() {
                             ui.centered_and_justified(|ui| {
                                 ui.label(
@@ -57,7 +58,7 @@ impl eframe::App for ClipVaultApp {
                             });
                         }
 
-                        for (id, content, timestamp) in &self.clips {
+                        for (id, content, timestamp, bool) in &self.clips {
                             // Skip empty content clips to avoid layout issues
                             if content.trim().is_empty() {
                                 continue;
@@ -100,6 +101,7 @@ impl eframe::App for ClipVaultApp {
                                                 ui.with_layout(
                                                     Layout::right_to_left(egui::Align::Center),
                                                     |ui| {
+                                                        // Copy button
                                                         if ui
                                                             .add(
                                                                 egui::Button::new("📋 Copy")
@@ -127,6 +129,27 @@ impl eframe::App for ClipVaultApp {
                                                             .clicked()
                                                         {
                                                             deleted_id = Some(*id);
+                                                        }
+
+                                                        // Pin/Unpin button
+                                                        let is_pinned = *bool;
+                                                        let pin_label = if is_pinned { "📌 Unpin" } else { "📌 Pin" };
+                                                        let pin_color = if is_pinned {
+                                                            Color32::from_rgb(255, 255, 120)
+                                                        } else {
+                                                            Color32::from_rgb(255, 255, 197)
+                                                        };
+                                                        if ui
+                                                            .add(
+                                                                egui::Button::new(pin_label)
+                                                                    .small()
+                                                                    .fill(pin_color),
+                                                            )
+                                                            .on_hover_text(if is_pinned { "Unpin this entry" } else { "Pin this entry" })
+                                                            .clicked()
+                                                        {
+                                                            let _ = db::toggle_pin_clip(&self.db, *id);
+                                                            pinned_id = Some(*id);
                                                         }
                                                     },
                                                 );

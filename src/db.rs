@@ -1,18 +1,24 @@
-use rusqlite::{Connection, Result};
-use rusqlite::params;
+use rusqlite::{params, Connection, Result};
 
 pub fn init_db() -> Result<Connection> {
     println!("Initializing database...");
     let conn = Connection::open("clips.db")?;
     println!("Database opened successfully.");
+
+    // Create table with pinned column if it doesn't exist
     conn.execute(
         "CREATE TABLE IF NOT EXISTS clips (
-    id INTEGER PRIMARY KEY,
-    content TEXT NOT NULL,
-    timestamp INTEGER NOT NULL
-)",
+            id INTEGER PRIMARY KEY,
+            content TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            pinned INTEGER NOT NULL DEFAULT 0
+        )",
         [],
     )?;
+
+    // Try to add pinned column in case it's missing (safe if already exists)
+    let _ = conn.execute("ALTER TABLE clips ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0", []);
+
     println!("Table checked/created.");
     Ok(conn)
 }
@@ -27,12 +33,10 @@ pub fn delete_clip(conn: &Connection, id: i64) -> Result<usize> {
     result
 }
 
-
-
 pub fn save_clip(conn: &Connection, clip: &str, timestamp: i64) -> Result<(), rusqlite::Error> {
     println!("Saving clip: '{}', timestamp: '{}'", clip, timestamp);
     let result = conn.execute(
-        "INSERT INTO clips (content, timestamp) VALUES (?1, ?2)",
+        "INSERT INTO clips (content, timestamp, pinned) VALUES (?1, ?2, 0)",
         params![clip, timestamp],
     );
     match result {
@@ -42,26 +46,45 @@ pub fn save_clip(conn: &Connection, clip: &str, timestamp: i64) -> Result<(), ru
     result.map(|_| ())
 }
 
-
-pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(i64, String, i64)>> {
+pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(i64, String, i64, bool)>> {
     println!("Loading up to {} recent clips...", limit);
-    let mut stmt = conn.prepare("SELECT id, content, timestamp FROM clips ORDER BY timestamp DESC LIMIT ?")?;
+    let mut stmt = conn.prepare(
+        "SELECT id, content, timestamp, pinned FROM clips 
+         ORDER BY pinned DESC, timestamp DESC 
+         LIMIT ?"
+    )?;
+
     let rows = stmt.query_map([limit as i64], |row| {
         Ok((
-            row.get::<_, i64>(0)?, // id
-            row.get::<_, String>(1)?, // content
-            row.get::<_, i64>(2)?, // timestamp
+            row.get::<_, i64>(0)?,     // id
+            row.get::<_, String>(1)?,  // content
+            row.get::<_, i64>(2)?,     // timestamp
+            row.get::<_, i64>(3)? != 0 // pinned (as bool)
         ))
     })?;
 
     let mut clips = Vec::new();
     for clip in rows {
         match &clip {
-            Ok((id, content, timestamp)) => println!("Loaded clip (ID: {}): '{}', timestamp: '{}'", id, content, timestamp),
+            Ok((id, content, timestamp, pinned)) => {
+                println!(
+                    "Loaded clip (ID: {}): '{}', timestamp: '{}', pinned: {}",
+                    id, content, timestamp, pinned
+                );
+            }
             Err(e) => println!("Error loading a clip row: {}", e),
         }
         clips.push(clip?);
     }
+
     println!("Total clips loaded: {}", clips.len());
     Ok(clips)
+}
+
+pub fn toggle_pin_clip(conn: &Connection, id: i64) -> Result<usize> {
+    println!("Toggling pin for clip with ID: {}", id);
+    conn.execute(
+        "UPDATE clips SET pinned = NOT pinned WHERE id = ?1",
+        params![id],
+    )
 }
