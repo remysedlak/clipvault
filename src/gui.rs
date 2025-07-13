@@ -7,19 +7,24 @@ pub struct ClipVaultApp {
     // Content, Timestamp
     clips: Vec<(i64, String, i64, bool)>,
     db: Connection,
+    darkmode: bool,
 }
 
 impl ClipVaultApp {
     pub fn new(db: Connection) -> Self {
         let clips = db::load_recent_clips(&db, 20).unwrap_or_default();
-        Self { clips, db }
+        Self { clips, db, darkmode: true }
     }
 }
 
 impl eframe::App for ClipVaultApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // Use a light theme for readability
-        ctx.set_visuals(egui::Visuals::light());
+        // Set visuals based on darkmode
+        if self.darkmode {
+            ctx.set_visuals(egui::Visuals::dark());
+        } else {
+            ctx.set_visuals(egui::Visuals::light());
+        }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal_wrapped(|ui| {
@@ -31,12 +36,19 @@ impl eframe::App for ClipVaultApp {
                 if ui.button("🔄 Refresh").clicked() {
                     self.clips = db::load_recent_clips(&self.db, 20).unwrap_or_default();
                 }
-                ui.button("📅")
+
+                // Dark/Light mode toggle button
+                let mode_label = if self.darkmode { "🌙 Dark" } else { "🔆 Light" };
+                if ui.button(mode_label).clicked() {
+                    self.darkmode = !self.darkmode;
+                }
+
+                let _ = ui.button("📅");
             });
         });
 
         egui::CentralPanel::default()
-            .frame(egui::Frame::none().fill(Color32::from_rgb(245, 245, 245)))
+            // .frame(egui::Frame::none().fill(Color32::from_rgb(245, 245, 245)))
             .show(ctx, |ui| {
                 ui.add_space(10.0);
 
@@ -69,15 +81,15 @@ impl eframe::App for ClipVaultApp {
 
                             // Outer card frame
                             EguiFrame::none()
-                                .fill(Color32::from_rgb(255, 255, 255))
-                                .stroke(Stroke::new(1.0, Color32::LIGHT_GRAY))
+                                // .fill(Color32::from_rgb(255, 255, 255))
+                                // .stroke(Stroke::new(1.0, Color32::LIGHT_GRAY))
                                 .rounding(8.0)
                                 .inner_margin(crate::gui::egui::Margin::symmetric(10.0, 10.0))
                                 .outer_margin(crate::gui::egui::Margin::symmetric(20.0, 0.0))
                                 .show(ui, |ui| {
                                     // Content row with black border, wrapping text, and copy button
                                     EguiFrame::none()
-                                        .fill(Color32::from_rgb(250, 250, 250))
+                                        // .fill(Color32::from_rgb(250, 250, 250))
                                         .stroke(Stroke::new(1.0, Color32::BLACK))
                                         .rounding(6.0)
                                         .inner_margin(crate::gui::egui::Margin::symmetric(6.0, 6.0))
@@ -93,7 +105,6 @@ impl eframe::App for ClipVaultApp {
                                                         RichText::new(content)
                                                             .monospace()
                                                             .text_style(TextStyle::Body)
-                                                            .color(Color32::BLACK),
                                                     )
                                                     .wrap(),
                                                 );
@@ -123,7 +134,7 @@ impl eframe::App for ClipVaultApp {
                                                             .add(
                                                                 egui::Button::new("🗑 Delete")
                                                                     .small()
-                                                                    .fill(Color32::from_rgb(255, 230, 230)),
+                                                                    // .fill(Color32::from_rgb(255, 230, 230)),
                                                             )
                                                             .on_hover_text("Delete this entry")
                                                             .clicked()
@@ -133,17 +144,11 @@ impl eframe::App for ClipVaultApp {
 
                                                         // Pin/Unpin button
                                                         let is_pinned = *bool;
-                                                        let pin_label = if is_pinned { "📌 Unpin" } else { "📌 Pin" };
-                                                        let pin_color = if is_pinned {
-                                                            Color32::from_rgb(255, 255, 120)
-                                                        } else {
-                                                            Color32::from_rgb(255, 255, 197)
-                                                        };
+                                                        let pin_label = if is_pinned { "📌 Unpin" } else { "📌" };
                                                         if ui
                                                             .add(
                                                                 egui::Button::new(pin_label)
                                                                     .small()
-                                                                    .fill(pin_color),
                                                             )
                                                             .on_hover_text(if is_pinned { "Unpin this entry" } else { "Pin this entry" })
                                                             .clicked()
