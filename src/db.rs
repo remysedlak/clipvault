@@ -43,17 +43,21 @@ pub fn save_clip(conn: &Connection, clip: &str, timestamp: i64) -> Result<(), ru
 }
 
 
-pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(String, i64)>> {
+pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(i64, String, i64)>> {
     println!("Loading up to {} recent clips...", limit);
-    let mut stmt = conn.prepare("SELECT content, timestamp FROM clips ORDER BY timestamp DESC LIMIT ?")?;
+    let mut stmt = conn.prepare("SELECT id, content, timestamp FROM clips ORDER BY timestamp DESC LIMIT ?")?;
     let rows = stmt.query_map([limit as i64], |row| {
-        Ok((row.get(0)?, row.get(1)?))
+        Ok((
+            row.get::<_, i64>(0)?, // id
+            row.get::<_, String>(1)?, // content
+            row.get::<_, i64>(2)?, // timestamp
+        ))
     })?;
 
     let mut clips = Vec::new();
     for clip in rows {
         match &clip {
-            Ok((content, timestamp)) => println!("Loaded clip: '{}', timestamp: '{}'", content, timestamp),
+            Ok((id, content, timestamp)) => println!("Loaded clip (ID: {}): '{}', timestamp: '{}'", id, content, timestamp),
             Err(e) => println!("Error loading a clip row: {}", e),
         }
         clips.push(clip?);

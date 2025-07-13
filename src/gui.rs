@@ -5,7 +5,7 @@ use chrono::{DateTime, Local, Datelike};
 
 pub struct ClipVaultApp {
     // Content, Timestamp
-    clips: Vec<(String, i64)>,
+    clips: Vec<(i64, String, i64)>,
     db: Connection,
 }
 
@@ -43,7 +43,21 @@ impl eframe::App for ClipVaultApp {
                 egui::ScrollArea::vertical()
                     .auto_shrink([false; 2])
                     .show(ui, |ui| {
-                        for (content, timestamp) in &self.clips {
+                        // Track if a clip was deleted this frame
+                        let mut deleted_id: Option<i64> = None;
+                        if self.clips.is_empty() {
+                            ui.centered_and_justified(|ui| {
+                                ui.label(
+                                    RichText::new("No clips found.")
+                                        .color(Color32::DARK_GRAY)
+                                        .italics()
+                                        .text_style(TextStyle::Heading),           
+                                );
+                                
+                            });
+                        }
+
+                        for (id, content, timestamp) in &self.clips {
                             // Skip empty content clips to avoid layout issues
                             if content.trim().is_empty() {
                                 continue;
@@ -58,7 +72,6 @@ impl eframe::App for ClipVaultApp {
                                 .stroke(Stroke::new(1.0, Color32::LIGHT_GRAY))
                                 .rounding(8.0)
                                 .inner_margin(crate::gui::egui::Margin::symmetric(10.0, 10.0))
-                                // .shadow(...) removed as not supported
                                 .show(ui, |ui| {
                                     // Content row with black border, wrapping text, and copy button
                                     EguiFrame::none()
@@ -101,6 +114,19 @@ impl eframe::App for ClipVaultApp {
                                                             });
                                                             just_copied = true;
                                                         }
+
+                                                        // Delete button
+                                                        if ui
+                                                            .add(
+                                                                egui::Button::new("🗑 Delete")
+                                                                    .small()
+                                                                    .fill(Color32::from_rgb(255, 230, 230)),
+                                                            )
+                                                            .on_hover_text("Delete this entry")
+                                                            .clicked()
+                                                        {
+                                                            deleted_id = Some(*id);
+                                                        }
                                                     },
                                                 );
                                             });
@@ -125,6 +151,17 @@ impl eframe::App for ClipVaultApp {
                                 });
 
                             ui.add_space(12.0); // spacing between clips
+
+                            // If deleted, break to avoid double-borrow
+                            if deleted_id.is_some() {
+                                break;
+                            }
+                        }
+
+                        // Actually delete and refresh after the loop
+                        if let Some(id) = deleted_id {
+                            let _ = db::delete_clip(&self.db, id);
+                            self.clips = db::load_recent_clips(&self.db, 20).unwrap_or_default();
                         }
                     });
             });
