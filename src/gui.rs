@@ -1,11 +1,7 @@
 use crate::db;
-use eframe::{
-    egui::{
-        self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle,
-    },
-};
+use chrono::{DateTime, Datelike, FixedOffset, Timelike};
+use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle};
 use rusqlite::Connection;
-
 pub struct ClipVaultApp {
     // Content, Timestamp
     clips: Vec<(String, String)>,
@@ -121,7 +117,33 @@ impl eframe::App for ClipVaultApp {
                                     // Timestamp row
                                     ui.horizontal(|ui| {
                                         ui.label("🕒");
-                                        ui.monospace(timestamp);
+                                        let datetime: DateTime<FixedOffset> =
+                                            timestamp.parse().unwrap();
+
+                                        // Extract the components you want
+                                        let month = datetime.format("%B").to_string(); // Full month name
+                                        let day = datetime.day();
+                                        let year = datetime.year();
+
+                                        // Add "st", "nd", "rd", or "th" suffix
+                                        let suffix = match day {
+                                            11 | 12 | 13 => "th",
+                                            d if d % 10 == 1 => "st",
+                                            d if d % 10 == 2 => "nd",
+                                            d if d % 10 == 3 => "rd",
+                                            _ => "th",
+                                        };
+
+                                        // Format time in 12-hour clock
+                                        let time = datetime.format("%I:%M %p").to_string(); // e.g., "10:20 PM"
+
+                                        // Remove leading 0 from hour if needed
+                                        let time = time.strip_prefix('0').unwrap_or(&time);
+
+                                        // Combine everything
+                                        let result =
+                                            format!("{month} {day}{suffix}, {year}, {time}");
+                                        ui.monospace(result);
                                     });
                                 });
 
