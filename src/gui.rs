@@ -1,7 +1,7 @@
 use crate::db;
+use chrono::{DateTime, Datelike, Local};
 use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle};
 use rusqlite::Connection;
-use chrono::{DateTime, Local, Datelike};
 
 pub struct ClipVaultApp {
     // Content, Timestamp
@@ -13,7 +13,11 @@ pub struct ClipVaultApp {
 impl ClipVaultApp {
     pub fn new(db: Connection) -> Self {
         let clips = db::load_recent_clips(&db, 20).unwrap_or_default();
-        Self { clips, db, darkmode: true }
+        Self {
+            clips,
+            db,
+            darkmode: true,
+        }
     }
 }
 
@@ -38,12 +42,16 @@ impl eframe::App for ClipVaultApp {
                 }
 
                 // Dark/Light mode toggle button
-                let mode_label = if self.darkmode { "🌙 Dark" } else { "🔆 Light" };
+                let mode_label = if self.darkmode {
+                    "🌙 Dark"
+                } else {
+                    "🔆 Light"
+                };
                 if ui.button(mode_label).clicked() {
                     self.darkmode = !self.darkmode;
                 }
-
-                let _ = ui.button("📅");
+                //@@TODO Future calender feature
+                // let _ = ui.button("📅");
             });
         });
 
@@ -64,9 +72,8 @@ impl eframe::App for ClipVaultApp {
                                     RichText::new("No clips found.")
                                         .color(Color32::DARK_GRAY)
                                         .italics()
-                                        .text_style(TextStyle::Heading),           
+                                        .text_style(TextStyle::Heading),
                                 );
-                                
                             });
                         }
 
@@ -92,16 +99,14 @@ impl eframe::App for ClipVaultApp {
                                     Color32::from_rgb(200, 200, 200)
                                 })
                                 .stroke(Stroke::new(1.0, Color32::BLACK))
-                                       
                                 .show(ui, |ui| {
                                     // Content row with black border, wrapping text, and copy button
                                     EguiFrame::none()
                                         // .fill(Color32::from_rgb(250, 250, 250))
-
                                         .show(ui, |ui| {
                                             ui.vertical(|ui| {
-                                                let max_width = ui.available_width();
-                                                ui.set_max_width(max_width);
+                                                // let max_width = ui.available_width();
+                                                // ui.set_max_width(max_width);
 
                                                 ui.label("📝");
 
@@ -109,59 +114,9 @@ impl eframe::App for ClipVaultApp {
                                                     Label::new(
                                                         RichText::new(content)
                                                             .monospace()
-                                                            .text_style(TextStyle::Body)
+                                                            .text_style(TextStyle::Body),
                                                     )
                                                     .wrap(),
-                                                );
-
-                                                ui.with_layout(
-                                                    Layout::right_to_left(egui::Align::Center),
-                                                    |ui| {
-                                                        // Copy button
-                                                        if ui
-                                                            .add(
-                                                                egui::Button::new("📋 Copy")
-                                                                    .small(),
-                                                            )
-                                                            .on_hover_text(
-                                                                "Copy this text to clipboard",
-                                                            )
-                                                            .clicked()
-                                                        {
-                                                            ctx.output_mut(|o| {
-                                                                o.copied_text = content.clone();
-                                                            });
-                                                            just_copied = true;
-                                                        }
-
-                                                        // Delete button
-                                                        if ui
-                                                            .add(
-                                                                egui::Button::new("🗑 Delete")
-                                                                    .small()
-                                                                    // .fill(Color32::from_rgb(255, 230, 230)),
-                                                            )
-                                                            .on_hover_text("Delete this entry")
-                                                            .clicked()
-                                                        {
-                                                            deleted_id = Some(*id);
-                                                        }
-
-                                                        // Pin/Unpin button
-                                                        let is_pinned = *bool;
-                                                        let pin_label = if is_pinned { "📌 Unpin" } else { "📌" };
-                                                        if ui
-                                                            .add(
-                                                                egui::Button::new(pin_label)
-                                                                    .small()
-                                                            )
-                                                            .on_hover_text(if is_pinned { "Unpin this entry" } else { "Pin this entry" })
-                                                            .clicked()
-                                                        {
-                                                            let _ = db::toggle_pin_clip(&self.db, *id);
-                                                            pinned_id = Some(*id);
-                                                        }
-                                                    },
                                                 );
                                             });
                                         });
@@ -179,8 +134,62 @@ impl eframe::App for ClipVaultApp {
                                     // Timestamp row
                                     ui.horizontal(|ui| {
                                         ui.label("🕒");
-                                        
+
                                         ui.monospace(format_timestamp(*timestamp));
+                                        ui.with_layout(
+                                            Layout::right_to_left(egui::Align::Center),
+                                            |ui| {
+                                                // Set a fixed width for the button area
+                                                ui.set_max_width(200.0); // Adjust as needed
+
+                                                // Copy button with fixed size
+                                                if ui
+                                                    .add_sized(
+                                                        [70.0, 24.0],
+                                                        egui::Button::new("📋 Copy"),
+                                                    )
+                                                    .on_hover_text("Copy this text to clipboard")
+                                                    .clicked()
+                                                {
+                                                    ctx.output_mut(|o| {
+                                                        o.copied_text = content.clone();
+                                                    });
+                                                    just_copied = true;
+                                                }
+
+                                                // Delete button with fixed size
+                                                if ui
+                                                    .add_sized(
+                                                        [80.0, 24.0],
+                                                        egui::Button::new("🗑 Delete"), // .fill(Color32::from_rgb(255, 230, 230)),
+                                                    )
+                                                    .on_hover_text("Delete this entry")
+                                                    .clicked()
+                                                {
+                                                    deleted_id = Some(*id);
+                                                }
+
+                                                // Pin/Unpin button with fixed size
+                                                let is_pinned = *bool;
+                                                let pin_label =
+                                                    if is_pinned { "📌 Unpin" } else { "📌" };
+                                                if ui
+                                                    .add_sized(
+                                                        [70.0, 24.0],
+                                                        egui::Button::new(pin_label),
+                                                    )
+                                                    .on_hover_text(if is_pinned {
+                                                        "Unpin this entry"
+                                                    } else {
+                                                        "Pin this entry"
+                                                    })
+                                                    .clicked()
+                                                {
+                                                    let _ = db::toggle_pin_clip(&self.db, *id);
+                                                    pinned_id = Some(*id);
+                                                }
+                                            },
+                                        );
                                     });
                                 });
 
