@@ -10,6 +10,7 @@ pub struct ClipVaultApp {
     clips: Vec<(i64, String, i64, bool)>,
     db: Connection,
     darkmode: bool,
+    show_content: bool,
 }
 
 impl ClipVaultApp {
@@ -22,6 +23,7 @@ impl ClipVaultApp {
             clips: clips.clone(),
             db,
             darkmode: true,
+            show_content: false,
         }
     }
 }
@@ -42,6 +44,15 @@ impl eframe::App for ClipVaultApp {
                 ui.label("Recent clipboard history");
 
                 ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                    // Show/Hide content toggle button
+                    let show_content_label = if self.show_content { "🙈 Hide" } else { "👁 Show" };
+                    if ui
+                        .button(show_content_label)
+                        .on_hover_text("Show or hide the content of all clips")
+                        .clicked()
+                    {
+                        self.show_content = !self.show_content;
+                    }
                     if ui
                         .add(
                             DatePickerButton::new(&mut self.date)
@@ -127,7 +138,7 @@ impl eframe::App for ClipVaultApp {
                                 .fill(if self.darkmode {
                                     Color32::from_rgb(40, 40, 40)
                                 } else {
-                                    Color32::from_rgb(200, 200, 200)
+                                    Color32::from_rgb(240, 240, 240)
                                 })
                                 .stroke(Stroke::new(1.0, Color32::BLACK))
                                 .show(ui, |ui| {
@@ -140,12 +151,19 @@ impl eframe::App for ClipVaultApp {
                                                 // ui.set_max_width(max_width);
 
                                                 ui.label("📝");
-
+                                                    
                                                 ui.add(
                                                     Label::new(
-                                                        RichText::new(content)
-                                                            .monospace()
-                                                            .text_style(TextStyle::Body),
+                                                        if self.show_content {
+                                                            RichText::new(content)
+                                                                .monospace()
+                                                                .text_style(TextStyle::Body)
+                                                        }
+                                                        else {
+                                                            RichText::new("Content hidden")
+                                                                .monospace()
+                                                                .text_style(TextStyle::Body)
+                                                        }
                                                     )
                                                     .wrap(),
                                                 );
@@ -247,6 +265,7 @@ impl eframe::App for ClipVaultApp {
     }
 }
 
+//  turns UTC integer into a human-readable format
 fn format_timestamp(timestamp: i64) -> String {
     DateTime::from_timestamp(timestamp, 0)
         .map(|dt| {
