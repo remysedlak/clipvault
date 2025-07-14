@@ -146,7 +146,6 @@ fn load_icon_with_fallback() -> tray_icon::Icon {
             return icon;
         }
     }
-    
     // Fallback to a simple default icon
     create_default_icon()
 }
@@ -163,7 +162,6 @@ fn create_default_icon() -> tray_icon::Icon {
     // Create a simple 32x32 blue square as default icon
     let size = 32u32;
     let mut rgba = Vec::with_capacity((size * size * 4) as usize);
-    
     for y in 0..size {
         for x in 0..size {
             if x < 4 || x >= size - 4 || y < 4 || y >= size - 4 {
@@ -175,7 +173,6 @@ fn create_default_icon() -> tray_icon::Icon {
             }
         }
     }
-    
     tray_icon::Icon::from_rgba(rgba, size, size)
         .expect("Failed to create default icon")
 }

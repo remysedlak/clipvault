@@ -4,8 +4,6 @@ pub fn init_db() -> Result<Connection> {
     println!("Initializing database...");
     let conn = Connection::open("clips.db")?;
     println!("Database opened successfully.");
-
-    // Create table with pinned column if it doesn't exist
     conn.execute(
         "CREATE TABLE IF NOT EXISTS clips (
             id INTEGER PRIMARY KEY,
@@ -15,10 +13,6 @@ pub fn init_db() -> Result<Connection> {
         )",
         [],
     )?;
-
-    // Try to add pinned column in case it's missing (safe if already exists)
-    let _ = conn.execute("ALTER TABLE clips ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0", []);
-
     println!("Table checked/created.");
     Ok(conn)
 }
@@ -53,7 +47,6 @@ pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(i64, St
          ORDER BY pinned DESC, timestamp DESC 
          LIMIT ?"
     )?;
-
     let rows = stmt.query_map([limit as i64], |row| {
         Ok((
             row.get::<_, i64>(0)?,     // id
@@ -62,7 +55,6 @@ pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(i64, St
             row.get::<_, i64>(3)? != 0 // pinned (as bool)
         ))
     })?;
-
     let mut clips = Vec::new();
     for clip in rows {
         match &clip {
@@ -76,7 +68,6 @@ pub fn load_recent_clips(conn: &Connection, limit: usize) -> Result<Vec<(i64, St
         }
         clips.push(clip?);
     }
-
     println!("Total clips loaded: {}", clips.len());
     Ok(clips)
 }
@@ -94,19 +85,16 @@ pub fn load_clips_for_date(conn: &Connection, date: chrono::NaiveDate) -> Result
     // Use NaiveDate to create start and end timestamps (UTC)
     let start_of_day = date.and_hms_opt(0, 0, 0).unwrap();
     let end_of_day = date.and_hms_opt(23, 59, 59).unwrap();
-
     // Interpret as UTC timestamps
     let start_ts = start_of_day.and_utc().timestamp();
     let end_ts = end_of_day.and_utc().timestamp();
 
     println!("Loading clips between {} and {}", start_ts, end_ts);
-
     let mut stmt = conn.prepare(
         "SELECT id, content, timestamp, pinned FROM clips
          WHERE timestamp BETWEEN ?1 AND ?2
          ORDER BY pinned DESC, timestamp DESC"
     )?;
-
     let rows = stmt.query_map(params![start_ts, end_ts], |row| {
         Ok((
             row.get::<_, i64>(0)?,     // id
@@ -129,7 +117,6 @@ pub fn load_clips_for_date(conn: &Connection, date: chrono::NaiveDate) -> Result
         }
         clips.push(clip?);
     }
-
     println!("Total clips loaded for date: {}", clips.len());
     Ok(clips)
 }
