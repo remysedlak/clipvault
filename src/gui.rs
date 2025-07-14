@@ -1,38 +1,26 @@
 use crate::db;
-use chrono::{Date, DateTime, Datelike, Local, TimeZone, Utc};
+use chrono::{DateTime, Datelike, Local, Utc, NaiveDate};
 use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle};
 use egui_extras::DatePickerButton;
 use rusqlite::Connection;
 
 pub struct ClipVaultApp {
     // id, content, timestamp, pinned
-    date: Date<Utc>,
+    date: NaiveDate,
     clips: Vec<(i64, String, i64, bool)>,
     db: Connection,
     darkmode: bool,
-    dates: Vec<Date<Utc>>,
 }
 
 impl ClipVaultApp {
     pub fn new(db: Connection) -> Self {
         let clips = db::load_recent_clips(&db, 20).unwrap_or_default();
-        let dates = clips
-            .iter()
-            .filter_map(|clip| Utc.timestamp_opt(clip.2, 0).single().map(|dt| dt.date()))
-            .collect::<Vec<Date<Utc>>>();
-
-        // Initialize today's date as Date<Utc>
-        let naive_today = Utc::now().date_naive();
-        let date = Utc.from_utc_date(&naive_today);
-
-        let naive_date = Utc::now().date_naive();
-        let date = Utc.from_utc_date(&naive_date);
+        let date = Utc::now().date_naive();
 
         Self {
             date,
             clips: clips.clone(),
             db,
-            dates,
             darkmode: true,
         }
     }
@@ -54,23 +42,22 @@ impl eframe::App for ClipVaultApp {
                 ui.label("Recent clipboard history");
 
                 ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                    if ui
+                        .add(
+                            DatePickerButton::new(&mut self.date)
+                                .show_icon(true)
+                                .highlight_weekends(false)
+                                .format(""),
+                        )
+                        .on_hover_text("Select a date to filter clips")
+                        .changed()
+                    {
 
-                    let mut naive = self.date.naive_utc();
-
-                // Step 2: use DatePickerButton
-                if ui
-                    .add(DatePickerButton::new(&mut naive).show_icon(true).highlight_weekends(false).format(""))
-                    .on_hover_text("Select a date to filter clips")
-                    .changed()
-                {
-                    // Step 3: update self.date when user selects a date
-                    self.date = Utc.from_utc_date(&naive);
-
-                    // Load only the clips for the selected date
-    if let Ok(clips_for_day) = db::load_clips_for_date(&self.db, self.date) {
-        self.clips = clips_for_day;
-    }
-                }
+                        // Load only the clips for the selected date
+                        if let Ok(clips_for_day) = db::load_clips_for_date(&self.db, self.date) {
+                            self.clips = clips_for_day;
+                        }
+                    }
                     // Dark/Light mode toggle button
                     let mode_label = if self.darkmode {
                         "🌙 Dark"
@@ -78,9 +65,10 @@ impl eframe::App for ClipVaultApp {
                         "🔆 Light"
                     };
                     if ui
-                    .button(mode_label)
-                    .on_hover_text("Toggle dark/light mode")
-                    .clicked() {
+                        .button(mode_label)
+                        .on_hover_text("Toggle dark/light mode")
+                        .clicked()
+                    {
                         self.darkmode = !self.darkmode;
                     }
 

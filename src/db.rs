@@ -1,4 +1,3 @@
-use chrono::{Date, Utc, TimeZone};
 use rusqlite::{params, Connection, Result};
 
 pub fn init_db() -> Result<Connection> {
@@ -91,13 +90,14 @@ pub fn toggle_pin_clip(conn: &Connection, id: i64) -> Result<usize> {
 }
 
 /// Load clips that fall on a specific UTC date
-pub fn load_clips_for_date(conn: &Connection, date: Date<Utc>) -> Result<Vec<(i64, String, i64, bool)>> {
-    // Convert the date to a start timestamp (00:00:00 of that day)
+pub fn load_clips_for_date(conn: &Connection, date: chrono::NaiveDate) -> Result<Vec<(i64, String, i64, bool)>> {
+    // Use NaiveDate to create start and end timestamps (UTC)
     let start_of_day = date.and_hms_opt(0, 0, 0).unwrap();
     let end_of_day = date.and_hms_opt(23, 59, 59).unwrap();
 
-    let start_ts = start_of_day.timestamp();
-    let end_ts = end_of_day.timestamp();
+    // Interpret as UTC timestamps
+    let start_ts = start_of_day.and_utc().timestamp();
+    let end_ts = end_of_day.and_utc().timestamp();
 
     println!("Loading clips between {} and {}", start_ts, end_ts);
 
