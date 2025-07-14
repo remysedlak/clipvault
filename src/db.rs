@@ -1,3 +1,4 @@
+use chrono::{Date, Utc, TimeZone};
 use rusqlite::{params, Connection, Result};
 
 pub fn init_db() -> Result<Connection> {
@@ -87,4 +88,48 @@ pub fn toggle_pin_clip(conn: &Connection, id: i64) -> Result<usize> {
         "UPDATE clips SET pinned = NOT pinned WHERE id = ?1",
         params![id],
     )
+}
+
+/// Load clips that fall on a specific UTC date
+pub fn load_clips_for_date(conn: &Connection, date: Date<Utc>) -> Result<Vec<(i64, String, i64, bool)>> {
+    // Convert the date to a start timestamp (00:00:00 of that day)
+    let start_of_day = date.and_hms_opt(0, 0, 0).unwrap();
+    let end_of_day = date.and_hms_opt(23, 59, 59).unwrap();
+
+    let start_ts = start_of_day.timestamp();
+    let end_ts = end_of_day.timestamp();
+
+    println!("Loading clips between {} and {}", start_ts, end_ts);
+
+    let mut stmt = conn.prepare(
+        "SELECT id, content, timestamp, pinned FROM clips
+         WHERE timestamp BETWEEN ?1 AND ?2
+         ORDER BY pinned DESC, timestamp DESC"
+    )?;
+
+    let rows = stmt.query_map(params![start_ts, end_ts], |row| {
+        Ok((
+            row.get::<_, i64>(0)?,     // id
+            row.get::<_, String>(1)?,  // content
+            row.get::<_, i64>(2)?,     // timestamp
+            row.get::<_, i64>(3)? != 0 // pinned (as bool)
+        ))
+    })?;
+
+    let mut clips = Vec::new();
+    for clip in rows {
+        match &clip {
+            Ok((id, content, timestamp, pinned)) => {
+                println!(
+                    "Loaded clip (ID: {}): '{}', timestamp: '{}', pinned: {}",
+                    id, content, timestamp, pinned
+                );
+            }
+            Err(e) => println!("Error loading a clip row: {}", e),
+        }
+        clips.push(clip?);
+    }
+
+    println!("Total clips loaded for date: {}", clips.len());
+    Ok(clips)
 }
