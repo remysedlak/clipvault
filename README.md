@@ -1,14 +1,11 @@
 # ClipVault
 
-### ClipVault is a clipboard manager written in Rust. 
-#### Clipboard entries are stored to a local .db file. 
-#### The app starts in system tray, where the user can launch the GUI or end the process.
-### 7-13-2025 snapshot
-<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/524cf4bc-8a00-428d-ab70-0b52d2676069" />
-
-
-
-
+A clipboard manager written in Rust with offline local storage.
+Features
+- Persistent local storage of clipboard history using SQLite
+- User-configurable settings saved via TOML config files
+- Runs as a background system tray application
+- Filters clipboard entries by date
 
 ## Usage
 
@@ -29,3 +26,6 @@
 ## License
 
 MIT
+
+## Recent Snapshot
+<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/524cf4bc-8a00-428d-ab70-0b52d2676069" />
