@@ -1,5 +1,5 @@
 # ClipVault
-
+<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/524cf4bc-8a00-428d-ab70-0b52d2676069" />
 A clipboard manager written in Rust with offline local storage. </br>
 ## Features:
 - Persistent local storage of clipboard history using SQLite
@@ -26,6 +26,3 @@ A clipboard manager written in Rust with offline local storage. </br>
 ## License
 
 MIT
-
-## Recent Snapshot
-<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/524cf4bc-8a00-428d-ab70-0b52d2676069" />
