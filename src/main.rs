@@ -1,6 +1,7 @@
 mod clipboard;
 mod db;
 mod gui;
+mod settings;
 
 use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem, MenuEvent}};
 use winit::event_loop::{EventLoop, ControlFlow};

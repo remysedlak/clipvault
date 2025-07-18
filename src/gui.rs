@@ -1,10 +1,13 @@
 use crate::db;
-use chrono::{DateTime, Datelike, Local, Utc, NaiveDate};
+use crate::settings::{Settings, Theme};
+use chrono::{DateTime, Datelike, Local, NaiveDate, Utc};
 use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle};
 use egui_extras::DatePickerButton;
 use rusqlite::Connection;
 
 pub struct ClipVaultApp {
+    pub settings: Settings,
+    pub settings_path: std::path::PathBuf,
     // id, content, timestamp, pinned
     date: NaiveDate,
     clips: Vec<(i64, String, i64, bool)>,
@@ -18,17 +21,32 @@ impl ClipVaultApp {
         let clips = db::load_recent_clips(&db, 20).unwrap_or_default();
         let date = Utc::now().date_naive();
 
+        let (settings, settings_path) = Settings::load();
+        let darkmode = settings.theme == Theme::Dark;
+
         Self {
             date,
-            clips: clips.clone(),
+            clips,
             db,
-            darkmode: true,
+            darkmode,
             show_content: false,
+            settings,
+            settings_path,
         }
     }
 }
 
 impl eframe::App for ClipVaultApp {
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        // Example: update the theme setting before saving
+        self.settings.theme = if self.darkmode {
+            Theme::Dark
+        } else {
+            Theme::Light
+        };
+
+        let _ = self.settings.save(&self.settings_path);
+    }
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Set visuals based on darkmode
         if self.darkmode {
@@ -45,7 +63,11 @@ impl eframe::App for ClipVaultApp {
 
                 ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                     // Show/Hide content toggle button
-                    let show_content_label = if self.show_content { "🙈 Hide" } else { "👁 Show" };
+                    let show_content_label = if self.show_content {
+                        "🙈 Hide"
+                    } else {
+                        "👁 Show"
+                    };
                     if ui
                         .button(show_content_label)
                         .on_hover_text("Show or hide the content of all clips")
@@ -63,7 +85,6 @@ impl eframe::App for ClipVaultApp {
                         .on_hover_text("Select a date to filter clips")
                         .changed()
                     {
-
                         // Load only the clips for the selected date
                         if let Ok(clips_for_day) = db::load_clips_for_date(&self.db, self.date) {
                             self.clips = clips_for_day;
@@ -151,20 +172,17 @@ impl eframe::App for ClipVaultApp {
                                                 // ui.set_max_width(max_width);
 
                                                 ui.label("📝");
-                                                    
+
                                                 ui.add(
-                                                    Label::new(
-                                                        if self.show_content {
-                                                            RichText::new(content)
-                                                                .monospace()
-                                                                .text_style(TextStyle::Body)
-                                                        }
-                                                        else {
-                                                            RichText::new("Content hidden")
-                                                                .monospace()
-                                                                .text_style(TextStyle::Body)
-                                                        }
-                                                    )
+                                                    Label::new(if self.show_content {
+                                                        RichText::new(content)
+                                                            .monospace()
+                                                            .text_style(TextStyle::Body)
+                                                    } else {
+                                                        RichText::new("Content hidden")
+                                                            .monospace()
+                                                            .text_style(TextStyle::Body)
+                                                    })
                                                     .wrap(),
                                                 );
                                             });
