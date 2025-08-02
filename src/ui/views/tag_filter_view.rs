@@ -98,7 +98,7 @@ impl TagFilterView {
                         
                         // Use a grid layout for better organization
                         let available_width = ui.available_width();
-                        let button_width = 280.0;
+                        let button_width = 150.0;
                         let buttons_per_row = ((available_width - 40.0) / (button_width + 10.0)).floor() as usize;
                         let buttons_per_row = buttons_per_row.max(1); // At least 1 button per row
                         
