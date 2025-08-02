@@ -1,7 +1,7 @@
-use crate::db::{self, load_tags};
+use crate::db::{self};
 use crate::models::{Clip, Tag, UiMode, UiState};
 use crate::settings::{Settings, Theme};
-use crate::ui::components::top_panel::{TopPanel, TopPanelResponse};
+use crate::ui::components::top_panel::{TopPanel};
 use crate::ui::views::main_view::MainView;
 use crate::ui::views::tag_filter_view::TagFilterView;
 use eframe::egui;

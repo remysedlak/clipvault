@@ -100,40 +100,6 @@ pub fn load_clip_tags(conn: &Connection) -> Result<HashMap<i64, Vec<String>>> {
     Ok(map)
 }
 
-/// Returns tags associated with a specific clip by clip_id
-pub fn load_tags_for_clip(conn: &Connection, clip_id: i64) -> Result<Vec<(i64, String)>> {
-    println!("Loading tags for clip_id: {}", clip_id);
-
-    let mut stmt = conn.prepare(
-        "
-        SELECT tags.id, tags.name
-        FROM tags
-        INNER JOIN clip_tags ON tags.id = clip_tags.tag_id
-        WHERE clip_tags.clip_id = ?1
-        ORDER BY tags.name ASC
-        "
-    )?;
-
-    let tag_iter = stmt.query_map(params![clip_id], |row| {
-        Ok((
-            row.get::<_, i64>(0)?,     // tag id
-            row.get::<_, String>(1)?,  // tag name
-        ))
-    })?;
-
-    let mut tags = Vec::new();
-    for tag_result in tag_iter {
-        match &tag_result {
-            Ok((id, name)) => println!("Found tag: {} - '{}'", id, name),
-            Err(e) => println!("Error reading tag row: {}", e),
-        }
-        tags.push(tag_result?);
-    }
-
-    println!("Total tags found for clip {}: {}", clip_id, tags.len());
-    Ok(tags)
-}
-
 pub fn load_tags(conn: &Connection) -> Result<Vec<(i64, String)>> {
     println!("Getting all tags...");
     let mut stmt = match conn.prepare("SELECT id, name FROM tags ORDER BY name ASC") {

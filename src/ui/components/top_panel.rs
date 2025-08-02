@@ -1,4 +1,3 @@
-use crate::models::UiMode;
 use eframe::egui::{self, Layout};
 use egui_extras::DatePickerButton;
 use chrono::NaiveDate;

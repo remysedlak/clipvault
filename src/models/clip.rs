@@ -1,5 +1,3 @@
-use chrono::{DateTime, Local};
-
 #[derive(Debug, Clone)]
 pub struct Clip {
     pub id: i64,

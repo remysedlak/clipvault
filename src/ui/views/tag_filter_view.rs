@@ -108,7 +108,7 @@ impl TagFilterView {
                                 
                                 for tag in chunk {
                                     // Enhanced tag button with card styling
-                                    let button_response = Frame::none()
+                                    let _ = Frame::none()
                                         .fill(if ui.visuals().dark_mode {
                                             Color32::from_rgb(50, 50, 60)
                                         } else {

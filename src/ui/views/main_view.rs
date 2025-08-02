@@ -1,6 +1,6 @@
 use crate::db;
 use crate::models::{Clip, UiState};
-use crate::ui::components::clip_card::{ClipCard, ClipCardResponse};
+use crate::ui::components::clip_card::{ClipCard};
 use crate::ui::popups::tag_assignment::TagAssignmentPopup;
 use eframe::egui::{self, Color32, RichText, TextStyle};
 use rusqlite::Connection;
