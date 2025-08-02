@@ -1,12 +1,22 @@
 mod clipboard;
 mod db;
 mod gui;
+mod ui;
 mod settings;
+mod models;
+mod utils;
 
-use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem, MenuEvent}};
-use winit::event_loop::{EventLoop, ControlFlow};
-use std::{sync::{Arc, Mutex, mpsc}, thread, error::Error};
 use eframe::NativeOptions;
+use std::{
+    error::Error,
+    sync::{Arc, Mutex, mpsc},
+    thread,
+};
+use tray_icon::{
+    TrayIconBuilder,
+    menu::{Menu, MenuEvent, MenuItem},
+};
+use winit::event_loop::{ControlFlow, EventLoop};
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -18,29 +28,28 @@ enum AppEvent {
 fn main() -> Result<(), Box<dyn Error>> {
     // Initialize DB connection (thread safe with Mutex)
     let db = Arc::new(Mutex::new(db::init_db()?));
-    
+
     // Start clipboard monitoring thread
     {
         let db = db.clone();
         thread::spawn(move || {
             let _ = clipboard::monitor_clipboard(move |clip, _old_timestamp| {
-    // Generate current timestamp as i64 (seconds since epoch)
-    let timestamp = chrono::Utc::now().timestamp();
+                // Generate current timestamp as i64 (seconds since epoch)
+                let timestamp = chrono::Utc::now().timestamp();
 
-    let db = db.lock().unwrap();
-    if let Err(e) = db::save_clip(&db, &clip, timestamp) {
-        eprintln!("Failed to save clip: {}", e);
-    } else {
-        println!("Saved clip: {}, {}", clip, timestamp);
-    }
-});
-
+                let db = db.lock().unwrap();
+                if let Err(e) = db::save_clip(&db, &clip, timestamp) {
+                    eprintln!("Failed to save clip: {}", e);
+                } else {
+                    println!("Saved clip: {}, {}", clip, timestamp);
+                }
+            });
         });
     }
 
     // Create channel for GUI communication
     let (__gui_tx, gui_rx) = mpsc::channel::<AppEvent>();
-    
+
     // Start GUI handler thread
     thread::spawn(move || {
         while let Ok(event) = gui_rx.recv() {
@@ -76,18 +85,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Create event loop
     let event_loop = EventLoop::new()?;
-    
+
     // Create tray menu
     let tray_menu = Menu::new();
     let open_item = MenuItem::new("Open", true, None);
     let quit_item = MenuItem::new("Quit", true, None);
-    
+
     tray_menu.append(&open_item)?;
     tray_menu.append(&quit_item)?;
-    
+
     // Load icon (try different approaches)
     let icon = load_icon_with_fallback();
-    
+
     let _tray_icon = TrayIconBuilder::new()
         .with_menu(Box::new(tray_menu))
         .with_tooltip("ClipVault")
@@ -98,21 +107,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Get menu event receiver
     let menu_channel = MenuEvent::receiver();
-    
+
     event_loop.run(move |_event, elwt| {
         elwt.set_control_flow(ControlFlow::Wait);
-        
+
         // Handle menu events
         if let Ok(event) = menu_channel.try_recv() {
             match event.id {
                 id if id == open_item.id() => {
                     println!("Open button clicked - launching GUI as separate process...");
                     use std::process::Command;
-                    
-                    match Command::new("cargo")
-                        .args(&["run", "--bin", "gui"])
-                        .spawn() 
-                    {
+
+                    match Command::new("cargo").args(&["run", "--bin", "gui"]).spawn() {
                         Ok(_) => println!("GUI launched successfully"),
                         Err(e) => println!("Failed to launch GUI: {}", e),
                     }
@@ -124,7 +130,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 _ => {}
             }
         }
-        
+
         // Sleep to prevent busy waiting
         thread::sleep(std::time::Duration::from_millis(16));
     })?;
@@ -134,13 +140,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn load_icon_with_fallback() -> tray_icon::Icon {
     // Try to load from assets folder
-    let icon_paths = vec![
-        "assets/icon.ico",
-        "icon.ico",
-        "assets/icon.png",
-        "icon.png",
-    ];
-    
+    let icon_paths = vec!["assets/icon.ico", "icon.ico", "assets/icon.png", "icon.png"];
+
     for path in icon_paths {
         if let Ok(icon) = load_icon_from_path(path) {
             println!("Loaded icon from: {}", path);
@@ -155,7 +156,7 @@ fn load_icon_from_path(path: &str) -> Result<tray_icon::Icon, Box<dyn Error>> {
     let image = image::open(path)?.into_rgba8();
     let (width, height) = image.dimensions();
     let rgba = image.into_raw();
-    
+
     Ok(tray_icon::Icon::from_rgba(rgba, width, height)?)
 }
 
@@ -174,6 +175,5 @@ fn create_default_icon() -> tray_icon::Icon {
             }
         }
     }
-    tray_icon::Icon::from_rgba(rgba, size, size)
-        .expect("Failed to create default icon")
+    tray_icon::Icon::from_rgba(rgba, size, size).expect("Failed to create default icon")
 }
