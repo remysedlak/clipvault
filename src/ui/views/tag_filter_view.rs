@@ -30,7 +30,7 @@ impl TagFilterView {
                     
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui
-                            .add_sized([60.0, 20.0], egui::Button::new("🔙 Back"))
+                            .add_sized([60.0, 20.0], egui::Button::new("View Clips..."))
                             .on_hover_text("Return to main view")
                             .clicked()
                         {
@@ -127,7 +127,7 @@ impl TagFilterView {
                                             let button = ui.add_sized(
                                                 [button_width - 30.0, 35.0],
                                                 egui::Button::new(
-                                                    RichText::new(format!("🏷️ {}", tag.name))
+                                                    RichText::new(format!("{}", tag.name))
                                                         .text_style(TextStyle::Button)
                                                         .strong()
                                                 )

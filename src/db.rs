@@ -64,7 +64,7 @@ pub fn reset_db(conn: &Connection) -> Result<()> {
     conn.execute_batch("VACUUM;")?;
 
     println!("Database reset: all tables emptied.");
-    init_db();
+    let _ = init_db();
     Ok(())
 }
 
