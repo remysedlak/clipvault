@@ -68,6 +68,14 @@ pub fn reset_db(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+pub fn count_clips_for_tag(conn: &Connection, tag_id: &i64) -> Result<i64, rusqlite::Error> {
+    let mut stmt = conn.prepare(
+        "SELECT COUNT(*) FROM clip_tags WHERE tag_id = ?"
+    )?;
+    let count: i64 = stmt.query_row([tag_id], |row| row.get(0))?;
+    Ok(count)
+}
+
 pub fn load_clip_tags(conn: &Connection) -> Result<HashMap<i64, Vec<String>>> {
     let mut stmt = conn.prepare(
         "SELECT clip_tags.clip_id, tags.name
