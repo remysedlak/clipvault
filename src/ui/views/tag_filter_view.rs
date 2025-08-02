@@ -17,7 +17,7 @@ impl TagFilterView {
     ) {
         // Top Panel: Title + Back Button + Tag Count
         TopBottomPanel::top("tag_filter_top_panel")
-            .min_height(60.0)
+            .min_height(25.0)
             .show(ctx, |ui| {
                 ui.add_space(8.0);
                 ui.horizontal(|ui| {
@@ -30,7 +30,7 @@ impl TagFilterView {
                     
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui
-                            .add_sized([80.0, 35.0], egui::Button::new("🔙 Back"))
+                            .add_sized([60.0, 20.0], egui::Button::new("🔙 Back"))
                             .on_hover_text("Return to main view")
                             .clicked()
                         {

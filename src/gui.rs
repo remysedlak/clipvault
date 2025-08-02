@@ -76,6 +76,8 @@ impl eframe::App for ClipVaultApp {
                 &mut self.darkmode,
             );
 
+            
+
             if response.show_tags {
                 self.ui_state.ui_mode = UiMode::TagFilter;
             }
@@ -95,6 +97,7 @@ impl eframe::App for ClipVaultApp {
             }
 
             if response.date_changed {
+                self.ui_state.ui_mode = UiMode::Main;
                 if let Ok(clips_for_day) = db::load_clips_for_date(&self.db, self.ui_state.date) {
                     self.clips = clips_for_day.into_iter().map(Clip::from_tuple).collect();
                 }
