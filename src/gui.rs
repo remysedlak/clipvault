@@ -1,6 +1,6 @@
-use crate::db;
+use crate::db::{self, load_tags};
+use crate::models::{Clip, Tag, UiMode, UiState};
 use crate::settings::{Settings, Theme};
-use crate::models::{Clip, Tag, UiState, UiMode};
 use crate::ui::components::top_panel::{TopPanel, TopPanelResponse};
 use crate::ui::views::main_view::MainView;
 use crate::ui::views::tag_filter_view::TagFilterView;
@@ -29,7 +29,7 @@ impl ClipVaultApp {
 
         let (settings, settings_path) = Settings::load();
         let darkmode = settings.theme == Theme::Dark;
-        
+
         let tags = db::load_tags(&db)
             .unwrap_or_default()
             .into_iter()
@@ -80,12 +80,18 @@ impl eframe::App for ClipVaultApp {
                 self.ui_state.ui_mode = UiMode::TagFilter;
             }
             if response.delete_db {
-                db::reset_db(&self.db);
+                let _ = db::reset_db(&self.db);
                 self.clips = db::load_recent_clips(&self.db, 20)
                     .unwrap_or_default()
                     .into_iter()
                     .map(Clip::from_tuple)
                     .collect();
+                self.tags = db::load_tags(&self.db)
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(Tag::from_tuple)
+                    .collect();
+                self.ui_state.ui_mode = UiMode::Main;
             }
 
             if response.date_changed {
@@ -103,30 +109,32 @@ impl eframe::App for ClipVaultApp {
             }
         });
 
-        egui::CentralPanel::default().show(ctx, |ui| {
-            match self.ui_state.ui_mode {
-                UiMode::Main => {
-                    MainView::show(
-                        ui,
-                        ctx,
-                        &mut self.clips,
-                        &self.db,
-                        &mut self.ui_state,
-                        self.darkmode,
-                        &mut self.clip_tags,
-                        &self.tags.iter().map(|t| (t.id, t.name.clone())).collect::<Vec<_>>(),
-                    );
-                }
-                UiMode::TagFilter => {
-                    TagFilterView::show(
-                        ui,
-                        ctx,
-                        &mut self.clips,
-                        &self.db,
-                        &mut self.ui_state,
-                        &mut self.tags,
-                    );
-                }
+        egui::CentralPanel::default().show(ctx, |ui| match self.ui_state.ui_mode {
+            UiMode::Main => {
+                MainView::show(
+                    ui,
+                    ctx,
+                    &mut self.clips,
+                    &self.db,
+                    &mut self.ui_state,
+                    self.darkmode,
+                    &mut self.clip_tags,
+                    &self
+                        .tags
+                        .iter()
+                        .map(|t| (t.id, t.name.clone()))
+                        .collect::<Vec<_>>(),
+                );
+            }
+            UiMode::TagFilter => {
+                TagFilterView::show(
+                    ui,
+                    ctx,
+                    &mut self.clips,
+                    &self.db,
+                    &mut self.ui_state,
+                    &mut self.tags,
+                );
             }
         });
     }
