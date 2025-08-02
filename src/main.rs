@@ -140,16 +140,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn load_icon_with_fallback() -> tray_icon::Icon {
     // Try to load from assets folder
-    let icon_paths = vec!["assets/icon.ico", "icon.ico", "assets/icon.png", "icon.png"];
+    let icon_path = "assets/icon.ico";
 
-    for path in icon_paths {
-        if let Ok(icon) = load_icon_from_path(path) {
-            println!("Loaded icon from: {}", path);
-            return icon;
-        }
+    if let Ok(icon) = load_icon_from_path(icon_path) {
+        println!("Loaded icon from: {}", icon_path);
+        return icon;
+    } else {
+        println!("Failed to load icon from: {}", icon_path);
     }
-    // Fallback to a simple default icon
-    create_default_icon()
+
+    // Fallback: create a dummy 1x1 transparent pixel
+    let rgba = vec![0, 0, 0, 0]; // Transparent pixel
+    tray_icon::Icon::from_rgba(rgba, 1, 1).expect("Failed to create fallback icon")
 }
 
 fn load_icon_from_path(path: &str) -> Result<tray_icon::Icon, Box<dyn Error>> {
@@ -158,22 +160,4 @@ fn load_icon_from_path(path: &str) -> Result<tray_icon::Icon, Box<dyn Error>> {
     let rgba = image.into_raw();
 
     Ok(tray_icon::Icon::from_rgba(rgba, width, height)?)
-}
-
-fn create_default_icon() -> tray_icon::Icon {
-    // Create a simple 32x32 blue square as default icon
-    let size = 32u32;
-    let mut rgba = Vec::with_capacity((size * size * 4) as usize);
-    for y in 0..size {
-        for x in 0..size {
-            if x < 4 || x >= size - 4 || y < 4 || y >= size - 4 {
-                // Border - white
-                rgba.extend_from_slice(&[255, 255, 255, 255]);
-            } else {
-                // Interior - blue
-                rgba.extend_from_slice(&[0, 100, 200, 255]);
-            }
-        }
-    }
-    tray_icon::Icon::from_rgba(rgba, size, size).expect("Failed to create default icon")
 }
