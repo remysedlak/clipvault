@@ -21,7 +21,7 @@ impl TopPanel {
 
             ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                 // Show/Hide content toggle
-                let show_content_label = if *show_content { "🙈" } else { "👁" };
+                let show_content_label = if *show_content { "🙈 Hide" } else { "👁 Show" };
                 if ui
                     .button(show_content_label)
                     .on_hover_text("Show or hide the content of all clips")
