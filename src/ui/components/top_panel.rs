@@ -34,6 +34,10 @@ impl TopPanel {
                 if ui.button("🏷").on_hover_text("View tags").clicked() {
                     response.show_tags = true;
                 }
+
+                if ui.button("🗑").on_hover_text("Clear all history").clicked() {
+                    response.delete_db = true;
+                }
                 
                 // Date picker
                 if ui
@@ -77,6 +81,7 @@ impl TopPanel {
 #[derive(Default)]
 pub struct TopPanelResponse {
     pub show_tags: bool,
+    pub delete_db: bool,
     pub date_changed: bool,
     pub refresh_requested: bool,
 }

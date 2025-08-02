@@ -1,4 +1,3 @@
-
 use crate::db;
 use crate::settings::{Settings, Theme};
 use crate::models::{Clip, Tag, UiState, UiMode};
@@ -80,6 +79,15 @@ impl eframe::App for ClipVaultApp {
             if response.show_tags {
                 self.ui_state.ui_mode = UiMode::TagFilter;
             }
+            if response.delete_db {
+                db::reset_db(&self.db);
+                self.clips = db::load_recent_clips(&self.db, 20)
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(Clip::from_tuple)
+                    .collect();
+            }
+
             if response.date_changed {
                 if let Ok(clips_for_day) = db::load_clips_for_date(&self.db, self.ui_state.date) {
                     self.clips = clips_for_day.into_iter().map(Clip::from_tuple).collect();

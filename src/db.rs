@@ -44,6 +44,30 @@ pub fn init_db() -> Result<Connection> {
     Ok(conn)
 }
 
+pub fn reset_db(conn: &Connection) -> Result<()> {
+    println!("Resetting database: deleting all entries...");
+
+    // Disable foreign key checks temporarily to avoid issues with cascade deletes
+    conn.execute_batch("PRAGMA foreign_keys = OFF;")?;
+
+    // Delete all data from each table
+    conn.execute_batch("
+        DELETE FROM clip_tags;
+        DELETE FROM clips;
+        DELETE FROM tags;
+    ")?;
+
+    // Re-enable foreign keys
+    conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
+    // Optional: reclaim free space
+    conn.execute_batch("VACUUM;")?;
+
+    println!("Database reset: all tables emptied.");
+    init_db();
+    Ok(())
+}
+
 pub fn load_clip_tags(conn: &Connection) -> Result<HashMap<i64, Vec<String>>> {
     let mut stmt = conn.prepare(
         "SELECT clip_tags.clip_id, tags.name
