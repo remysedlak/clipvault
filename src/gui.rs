@@ -246,12 +246,7 @@ impl eframe::App for ClipVaultApp {
                                                                 o.copied_text = content.clone();
                                                             });
                                                             just_copied = true;
-                                                        }
-
-                                                        if ui.button("+").clicked() {
-                                                            self.show_tag_popup_for = Some(*id);
-                                                            self.selected_tag_id = None;
-                                                        }
+                                                        }     
 
                                                         // Delete button with fixed size
                                                         if ui
@@ -338,6 +333,12 @@ impl eframe::App for ClipVaultApp {
                                                                         );
                                                                     });
                                                             }
+                                                            
+                                                        }
+                                                        if ui.button("+").on_hover_text("Add tags to clip.")
+                                                        .clicked() {
+                                                                self.show_tag_popup_for = Some(*id);
+                                                                self.selected_tag_id = None;
                                                         }
 
                                                         // Set a fixed width for the button area

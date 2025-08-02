@@ -182,10 +182,11 @@ pub fn create_tag(conn: &Connection, name: &str) -> Result<usize> {
         rusqlite::params![name],
     );
     match result {
-        Ok(result) => println!("create tag"),
+        Ok(_) => println!("created tag"), 
         Err(ref e) => println!("Error creating tag: {}", e),
     }
     result
+   
 }
 
 pub fn assign_tag_to_clip(conn: &Connection, clip_id: i64, tag_id: i64) -> Result<usize> {
