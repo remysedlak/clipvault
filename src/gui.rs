@@ -67,7 +67,7 @@ impl eframe::App for ClipVaultApp {
         } else {
             ctx.set_visuals(egui::Visuals::light());
         }
-
+        if self.ui_state.ui_mode == UiMode::Main {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             let response = TopPanel::show(
                 ui,
@@ -111,6 +111,7 @@ impl eframe::App for ClipVaultApp {
                 self.ui_state.ui_mode = UiMode::Main;
             }
         });
+    }
 
         egui::CentralPanel::default().show(ctx, |ui| match self.ui_state.ui_mode {
             UiMode::Main => {
