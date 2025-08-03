@@ -25,18 +25,20 @@ impl TagAssignmentPopup {
                     .get(&clip_id)
                     .cloned()
                     .unwrap_or_default();
-
-                for (tag_id, tag_name) in tags {
-                    if !assigned.contains(tag_name) {
-                        let is_selected = ui_state.selected_tag_id == Some(*tag_id);
-                        if ui
-                            .selectable_label(is_selected, tag_name)
-                            .clicked()
-                        {
-                            ui_state.selected_tag_id = Some(*tag_id);
+                egui::ScrollArea::vertical()
+                    .show(ui, |ui| {
+                        for (tag_id, tag_name) in tags {
+                            if !assigned.contains(tag_name) {
+                                let is_selected = ui_state.selected_tag_id == Some(*tag_id);
+                                if ui
+                                    .selectable_label(is_selected, tag_name)
+                                    .clicked()
+                                {
+                                    ui_state.selected_tag_id = Some(*tag_id);
+                                }
+                            }
                         }
-                    }
-                }
+                    });
 
                 ui.horizontal(|ui| {
                     if ui.button("Assign").clicked() {

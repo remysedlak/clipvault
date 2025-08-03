@@ -4,6 +4,7 @@ use crate::settings::{Settings, Theme};
 use crate::ui::components::top_panel::{TopPanel};
 use crate::ui::views::main_view::MainView;
 use crate::ui::views::tag_filter_view::TagFilterView;
+use crate::ui::views::settings_view::SettingsView;
 use eframe::egui;
 use rusqlite::Connection;
 use std::collections::HashMap;
@@ -75,26 +76,13 @@ impl eframe::App for ClipVaultApp {
                 &mut self.ui_state.show_content,
                 &mut self.darkmode,
             );
-
             
 
             if response.show_tags {
                 self.ui_state.ui_mode = UiMode::TagFilter;
             }
-            if response.delete_db {
-                let _ = db::reset_db(&self.db);
-                self.clips = db::load_recent_clips(&self.db, 20)
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(Clip::from_tuple)
-                    .collect();
-                self.tags = db::load_tags(&self.db)
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(Tag::from_tuple)
-                    .collect();
-                self.ui_state.ui_mode = UiMode::Main;
-            }
+
+            
 
             if response.date_changed {
                 self.ui_state.ui_mode = UiMode::Main;
@@ -110,6 +98,12 @@ impl eframe::App for ClipVaultApp {
                     .collect();
                 self.ui_state.ui_mode = UiMode::Main;
             }
+
+            if response.settings {
+                self.ui_state.ui_mode = UiMode::Settings;
+            }
+
+            
         });
     }
 
@@ -139,6 +133,34 @@ impl eframe::App for ClipVaultApp {
                     &mut self.ui_state,
                     &mut self.tags,
                 );
+            }
+
+            UiMode::Settings => {
+                let response = SettingsView::show (
+                    ui,
+                    ctx,
+                    &mut self.ui_state,
+                );
+                if response.reset_settings {
+                self.darkmode = false;
+                self.ui_state.show_content = false;
+            }
+
+   
+            if response.delete_db {
+                let _ = db::reset_db(&self.db);
+                self.clips = db::load_recent_clips(&self.db, 20)
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(Clip::from_tuple)
+                    .collect();
+                self.tags = db::load_tags(&self.db)
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(Tag::from_tuple)
+                    .collect();
+                self.ui_state.ui_mode = UiMode::Main;
+            }
             }
         });
     }

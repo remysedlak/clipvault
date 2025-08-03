@@ -30,7 +30,7 @@ impl TagFilterView {
                     
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui
-                            .add_sized([60.0, 20.0], egui::Button::new("View Clips..."))
+                            .add_sized([60.0, 20.0], egui::Button::new("Back to clips..."))
                             .on_hover_text("Return to main view")
                             .clicked()
                         {
