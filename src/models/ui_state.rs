@@ -1,6 +1,8 @@
 use chrono::NaiveDate;
+use serde::{Serialize, Deserialize};
+use crate::settings::Settings;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum UiMode {
     Main,
     TagFilter,
@@ -22,8 +24,9 @@ pub struct UiState {
 
 impl Default for UiState {
     fn default() -> Self {
+        let (settings, settings_path) = Settings::load();
         Self {
-            ui_mode: UiMode::Main,
+            ui_mode: settings.mode,
             show_content: false,
             date: chrono::Utc::now().date_naive(),
             user_input: String::new(),

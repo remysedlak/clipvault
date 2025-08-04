@@ -3,9 +3,12 @@ use directories::ProjectDirs;
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+use crate::models::UiMode;
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
     pub theme: Theme,
+    pub mode: UiMode,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Copy)]
@@ -14,6 +17,17 @@ pub enum Theme {
     Dark,
 }
 
+// Default for Settings, not Theme
+impl Default for Settings {
+    fn default() -> Self {
+        Settings {
+            theme: Theme::Light,
+            mode: UiMode::Main,
+        }
+    }
+}
+
+// Default for Theme (optional if already derived on enum)
 impl Default for Theme {
     fn default() -> Self {
         Theme::Light

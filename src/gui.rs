@@ -59,6 +59,7 @@ impl eframe::App for ClipVaultApp {
         } else {
             Theme::Light
         };
+        self.settings.mode = self.ui_state.ui_mode;
         let _ = self.settings.save(&self.settings_path);
     }
 
