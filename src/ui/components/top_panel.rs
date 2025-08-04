@@ -12,7 +12,7 @@ impl TopPanel {
         darkmode: &mut bool,
     ) -> TopPanelResponse {
         let mut response = TopPanelResponse::default();
-        
+        ui.add_space(4.0);
         ui.horizontal(|ui| {
             ui.heading("📋 ClipVault");
             ui.separator();
@@ -35,7 +35,7 @@ impl TopPanel {
                 
 
                 // Tags button
-                if ui.button("🏷").on_hover_text("View tags").clicked() {
+                if ui.button("🗁").on_hover_text("View tags").clicked() {
                     response.show_tags = true;
                 }
 
@@ -78,7 +78,9 @@ impl TopPanel {
             });
         });
         
+        ui.add_space(4.0);
         response
+        
     }
 }
 

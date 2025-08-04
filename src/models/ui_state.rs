@@ -12,19 +12,17 @@ pub enum UiMode {
 pub struct UiState {
     pub ui_mode: UiMode,
     pub show_content: bool,
-    pub delete_db: bool,
     pub date: NaiveDate,
     pub user_input: String,
     pub show_create_popup: bool,
     pub show_tag_popup_for: Option<i64>,
     pub selected_tag_id: Option<i64>,
     pub show_delete_confirmation: bool,
-    pub reset_settings: bool,
 }
 
 impl Default for UiState {
     fn default() -> Self {
-        let (settings, settings_path) = Settings::load();
+        let (settings, _) = Settings::load();
         Self {
             ui_mode: settings.mode,
             show_content: false,
@@ -33,9 +31,7 @@ impl Default for UiState {
             show_create_popup: false,
             show_tag_popup_for: None,
             selected_tag_id: None,
-            delete_db: false,
             show_delete_confirmation: false,
-            reset_settings: false,
         }
     }
 }

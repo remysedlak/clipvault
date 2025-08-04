@@ -35,7 +35,7 @@ impl ClipCard {
                 // Content section
                 EguiFrame::none().show(ui, |ui| {
                     ui.vertical(|ui| {
-                        ui.label("📝");
+                        // ui.label("📝");
                         ui.add(
                             Label::new(if show_content {
                                 RichText::new(&clip.content)
@@ -53,6 +53,44 @@ impl ClipCard {
 
                 ui.add_space(6.0);
                 ui.separator();
+                // Tags section
+                ui.horizontal(|ui| {
+                    // ui.label("tags: ");
+                    ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
+                        // Show existing tags
+                        if let Some(tags) = clip_tags.get(&clip.id) {
+                            for tag_name in tags {
+                                if tag_name == "emotion" {
+                                    continue;
+                                }
+                                
+                                let visuals = ui.visuals();
+                                let bg_color = visuals.widgets.inactive.bg_fill;
+                                let text_color = visuals.text_color();
+                                let stroke = visuals.widgets.inactive.bg_stroke;
+
+                                egui::Frame::none()
+                                    .fill(bg_color)
+                                    .stroke(stroke)
+                                    .rounding(egui::Rounding::same(6.0))
+                                    .inner_margin(egui::Margin::symmetric(6.0, 4.0))
+                                    .show(ui, |ui| {
+                                        ui.label(
+                                            egui::RichText::new(tag_name)
+                                                .color(text_color)
+                                                .strong(),
+                                        );
+                                    });
+                            }
+                        }
+                        
+                        if ui.button("+").on_hover_text("Add tags to clip.").clicked() {
+                            response.add_tag_requested = true;
+                        }
+                        
+                        ui.set_max_width(200.0);
+                    });
+                });
                 
                 // Timestamp and action buttons
                 ui.horizontal(|ui| {
@@ -99,44 +137,7 @@ impl ClipCard {
                     });
                 });
 
-                // Tags section
-                ui.horizontal(|ui| {
-                    ui.label("tags: ");
-                    ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
-                        // Show existing tags
-                        if let Some(tags) = clip_tags.get(&clip.id) {
-                            for tag_name in tags {
-                                if tag_name == "emotion" {
-                                    continue;
-                                }
-                                
-                                let visuals = ui.visuals();
-                                let bg_color = visuals.widgets.inactive.bg_fill;
-                                let text_color = visuals.text_color();
-                                let stroke = visuals.widgets.inactive.bg_stroke;
-
-                                egui::Frame::none()
-                                    .fill(bg_color)
-                                    .stroke(stroke)
-                                    .rounding(egui::Rounding::same(6.0))
-                                    .inner_margin(egui::Margin::symmetric(6.0, 4.0))
-                                    .show(ui, |ui| {
-                                        ui.label(
-                                            egui::RichText::new(tag_name)
-                                                .color(text_color)
-                                                .strong(),
-                                        );
-                                    });
-                            }
-                        }
-                        
-                        if ui.button("+").on_hover_text("Add tags to clip.").clicked() {
-                            response.add_tag_requested = true;
-                        }
-                        
-                        ui.set_max_width(200.0);
-                    });
-                });
+                
             });
 
         response
