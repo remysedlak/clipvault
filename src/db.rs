@@ -1,9 +1,23 @@
 use rusqlite::{Connection, Result, params};
 use std::collections::HashMap;
-   
+use directories::ProjectDirs;
+use std::path::PathBuf;
+
+// Function to get the path to the database file from AppData
+pub fn get_db_path() -> PathBuf {
+    let proj_dirs = ProjectDirs::from("com", "remysedlak", "clipvault")
+        .expect("Unable to get project dirs");
+    let data_dir = proj_dirs.data_dir();
+    std::fs::create_dir_all(&data_dir).expect("Failed to create data directory");
+        data_dir.join("clipvault.db")
+}
+
 pub fn init_db() -> Result<Connection> {
-    println!("Initializing database...");
-    let conn = Connection::open("clips.db")?;
+   println!("Initializing database...");
+    let db_path = get_db_path();
+    println!("Using DB path: {:?}", db_path);
+
+    let conn = Connection::open(db_path)?;
     println!("Database opened successfully.");
     conn.execute(
         "

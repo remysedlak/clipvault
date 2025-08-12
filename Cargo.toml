@@ -29,3 +29,4 @@ chrono = "0.4.41"
 toml = "0.8"
 directories = "5.0"
 serde = { version = "1.0", features = ["derive"] }
+single-instance = "0.3"
