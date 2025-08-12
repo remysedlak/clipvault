@@ -5,18 +5,31 @@ mod ui;
 mod settings;
 mod models;
 mod utils;
-
 use eframe::NativeOptions;
-use std::{
-    error::Error,
-    sync::{Arc, Mutex, mpsc},
-    thread,
-};
-use tray_icon::{
-    TrayIconBuilder,
-    menu::{Menu, MenuEvent, MenuItem},
-};
-use winit::event_loop::{ControlFlow, EventLoop};
+use std::{ error::Error, sync::{ Arc, Mutex, mpsc }, thread, path::PathBuf, env, process::Command };
+use tray_icon::{ TrayIconBuilder, menu::{ Menu, MenuEvent, MenuItem } };
+use winit::event_loop::{ ControlFlow, EventLoop };
+
+const ICON_BYTES: &[u8] = include_bytes!("../assets/clipboard.png");
+
+use std::io::Cursor;
+use image::io::Reader as ImageReader;
+
+fn load_icon_embedded() -> tray_icon::Icon {
+    // Read image from embedded bytes (ico or png)
+    let cursor = Cursor::new(ICON_BYTES);
+    let image = ImageReader::new(cursor)
+        .with_guessed_format()
+        .expect("Failed to guess image format")
+        .decode()
+        .expect("Failed to decode embedded icon")
+        .to_rgba8();
+
+    let (width, height) = image.dimensions();
+    let rgba = image.into_raw();
+
+    tray_icon::Icon::from_rgba(rgba, width, height).expect("Failed to create icon")
+}
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -56,23 +69,21 @@ fn main() -> Result<(), Box<dyn Error>> {
             match event {
                 AppEvent::OpenGui => {
                     println!("Opening GUI...");
-                    let native_options = NativeOptions::default();
-                    match db::init_db() {
-                        Ok(gui_db) => {
-                            println!("Database initialized for GUI");
-                            match eframe::run_native(
-                                "ClipVault GUI",
-                                native_options,
-                                Box::new(|_cc| {
-                                    println!("Creating GUI app...");
-                                    Ok(Box::new(gui::ClipVaultApp::new(gui_db)))
-                                }),
-                            ) {
-                                Ok(_) => println!("GUI closed normally"),
-                                Err(e) => println!("GUI error: {}", e),
-                            }
-                        }
-                        Err(e) => println!("Failed to open DB for GUI: {}", e),
+                    fn get_gui_exe_path() -> PathBuf {
+                        let mut exe_path = env
+                            ::current_exe()
+                            .expect("Failed to get current exe path");
+                        exe_path.pop(); // Remove clipvault.exe file name
+                        exe_path.push("gui.exe"); // Append gui.exe
+                        exe_path
+                    }
+
+                    // In your tray menu event handler:
+                    let gui_path = get_gui_exe_path();
+
+                    match Command::new(gui_path).spawn() {
+                        Ok(_) => println!("GUI launched successfully"),
+                        Err(e) => println!("Failed to launch GUI: {}", e),
                     }
                 }
                 AppEvent::Quit => {
@@ -95,7 +106,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     tray_menu.append(&quit_item)?;
 
     // Load icon (try different approaches)
-    let icon = load_icon_with_fallback();
+    let icon = load_icon_embedded();
 
     let _tray_icon = TrayIconBuilder::new()
         .with_menu(Box::new(tray_menu))
@@ -118,7 +129,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                     println!("Open button clicked - launching GUI as separate process...");
                     use std::process::Command;
 
-                    match Command::new("cargo").args(&["run", "--bin", "gui"]).spawn() {
+                    fn get_gui_exe_path() -> PathBuf {
+                        let mut exe_path = env
+                            ::current_exe()
+                            .expect("Failed to get current exe path");
+                        exe_path.pop(); // Remove clipvault.exe file name
+                        exe_path.push("gui.exe"); // Append gui.exe
+                        exe_path
+                    }
+
+                    let gui_path = get_gui_exe_path();
+
+                    match Command::new(gui_path).spawn() {
                         Ok(_) => println!("GUI launched successfully"),
                         Err(e) => println!("Failed to launch GUI: {}", e),
                     }
@@ -136,28 +158,4 @@ fn main() -> Result<(), Box<dyn Error>> {
     })?;
 
     Ok(())
-}
-
-fn load_icon_with_fallback() -> tray_icon::Icon {
-    // Try to load from assets folder
-    let icon_path = "assets/icon.ico";
-
-    if let Ok(icon) = load_icon_from_path(icon_path) {
-        println!("Loaded icon from: {}", icon_path);
-        return icon;
-    } else {
-        println!("Failed to load icon from: {}", icon_path);
-    }
-
-    // Fallback: create a dummy 1x1 transparent pixel
-    let rgba = vec![0, 0, 0, 0]; // Transparent pixel
-    tray_icon::Icon::from_rgba(rgba, 1, 1).expect("Failed to create fallback icon")
-}
-
-fn load_icon_from_path(path: &str) -> Result<tray_icon::Icon, Box<dyn Error>> {
-    let image = image::open(path)?.into_rgba8();
-    let (width, height) = image.dimensions();
-    let rgba = image.into_raw();
-
-    Ok(tray_icon::Icon::from_rgba(rgba, width, height)?)
 }
