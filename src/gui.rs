@@ -15,6 +15,7 @@ pub struct ClipVaultApp {
     clips: Vec<Clip>,
     db: Connection,
     darkmode: bool,
+    window_visible: bool,
     ui_state: UiState,
     tags: Vec<Tag>,
     clip_tags: HashMap<i64, Vec<String>>,
@@ -47,12 +48,14 @@ impl ClipVaultApp {
             settings_path,
             tags,
             clip_tags,
+            window_visible: true,
             ui_state: UiState::default(),
         }
     }
 }
 
 impl eframe::App for ClipVaultApp {
+
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
         self.settings.theme = if self.darkmode {
             Theme::Dark
@@ -64,6 +67,10 @@ impl eframe::App for ClipVaultApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        if !self.window_visible {
+        // Do nothing or optionally paint a tray icon or background tasks
+            return;
+        }
         if self.darkmode {
             ctx.set_visuals(egui::Visuals::dark());
         } else {
