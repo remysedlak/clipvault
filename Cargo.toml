@@ -6,10 +6,12 @@ edition = "2024"
 [[bin]]
 name = "clipvault"
 path = "src/main.rs"
+windows_subsystem = "windows"
 
 [[bin]]
 name = "gui"
 path = "src/bin/gui.rs"
+windows_subsystem = "windows"
 
 [lib]
 name = "clipvault"

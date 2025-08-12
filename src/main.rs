@@ -1,3 +1,6 @@
+// Flag for hiding the terminal on Windows
+#![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
+
 mod clipboard;
 mod db;
 mod gui;
@@ -10,6 +13,7 @@ use std::{ error::Error, sync::{ Arc, Mutex, mpsc }, thread, path::PathBuf, env,
 use tray_icon::{ TrayIconBuilder, menu::{ Menu, MenuEvent, MenuItem } };
 use winit::event_loop::{ ControlFlow, EventLoop };
 
+// Include icon bytes from assets folder
 const ICON_BYTES: &[u8] = include_bytes!("../assets/clipboard.png");
 
 use std::io::Cursor;

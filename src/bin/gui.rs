@@ -1,3 +1,6 @@
+// Flag for hiding the terminal on Windows
+#![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
+
 use clipvault::{db, gui};
 use eframe::NativeOptions;
 
