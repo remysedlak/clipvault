@@ -9,7 +9,8 @@ impl TopPanel {
         ui: &mut egui::Ui,
         date: &mut NaiveDate,
         show_content: &mut bool,
-        darkmode: &mut bool
+        darkmode: &mut bool,
+        search_query: &mut String,
     ) -> TopPanelResponse {
         let mut response = TopPanelResponse::default();
         ui.add_space(2.0);
@@ -62,6 +63,20 @@ impl TopPanel {
                 if ui.button("🔄").on_hover_text("Refresh clipboard entries.").clicked() {
                     response.refresh_requested = true;
                 }
+
+                ui.horizontal(|ui| {
+                let text_edit = egui::TextEdit::singleline(search_query)
+                    .hint_text("Search...");
+                
+                // Add text edit and get egui's response
+                let ui_response = ui.add_sized([80.0, 20.0], text_edit); 
+
+                // Signal to ClipVaultApp if the search text changed
+                if ui_response.changed() {
+                    response.search_query_changed = true;
+                }
+            });
+
             });
         });
 
@@ -76,4 +91,5 @@ pub struct TopPanelResponse {
     pub date_changed: bool,
     pub refresh_requested: bool,
     pub settings: bool,
+    pub search_query_changed: bool,
 }

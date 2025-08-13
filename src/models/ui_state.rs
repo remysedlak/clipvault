@@ -18,6 +18,7 @@ pub struct UiState {
     pub show_tag_popup_for: Option<i64>,
     pub selected_tag_id: Option<i64>,
     pub show_delete_confirmation: bool,
+    pub search_query: String,
 }
 
 impl Default for UiState {
@@ -32,6 +33,7 @@ impl Default for UiState {
             show_tag_popup_for: None,
             selected_tag_id: None,
             show_delete_confirmation: false,
+            search_query: String::new(),
         }
     }
 }

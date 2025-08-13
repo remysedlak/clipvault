@@ -176,7 +176,40 @@ pub fn update_tag_color(conn: &Connection, tag_id: i64, color: Option<&str>) -> 
     )?;
     Ok(())
 }
+pub fn search_clips(conn: &Connection, query: &str) -> Result<Vec<(i64, String, i64, bool)>> {
+    println!("Searching clips with query: '{}'", query);
+    let mut stmt = conn.prepare(
+        "SELECT id, content, timestamp, pinned FROM clips
+         WHERE content LIKE ?1
+         ORDER BY pinned DESC, timestamp DESC"
+    )?;
 
+    let rows = stmt.query_map([format!("%{}%", query)], |row| {
+        Ok((
+            row.get::<_, i64>(0)?,      // id
+            row.get::<_, String>(1)?,   // content
+            row.get::<_, i64>(2)?,      // timestamp
+            row.get::<_, i64>(3)? != 0, // pinned (as bool)
+        ))
+    })?;
+
+    let mut clips = Vec::new();
+    for clip in rows {
+        match &clip {
+            Ok((id, content, timestamp, pinned)) => {
+                println!(
+                    "Found clip (ID: {}): '{}', timestamp: '{}', pinned: {}",
+                    id, content, timestamp, pinned
+                );
+            }
+            Err(e) => println!("Error loading a clip row: {}", e),
+        }
+        clips.push(clip?);
+    }
+
+    println!("Total clips found: {}", clips.len());
+    Ok(clips)
+}
 
 pub fn load_clips_for_tag(conn: &Connection, tag_id: &i64) -> Result<Vec<(i64, String, i64, bool)>> {
     println!("Loading clips for tag_id: {}", tag_id);
