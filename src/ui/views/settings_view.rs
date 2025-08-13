@@ -87,7 +87,7 @@ impl SettingsView {
                                 // Delete All Button
                                 let delete_button = ui.add_sized(
                                     [280.0, 48.0],
-                                    egui::Button::new(RichText::new("🗑️ Delete All Entries").size(16.0).color(Color32::WHITE))
+                                    egui::Button::new(RichText::new("🚮 Delete All Entries").size(16.0).color(Color32::WHITE))
                                         .fill(Color32::from_rgb(220, 38, 38))
                                         .stroke(Stroke::new(1.0, Color32::from_rgb(185, 28, 28)))
                                         .rounding(Rounding::same(8.0))
