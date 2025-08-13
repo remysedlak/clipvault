@@ -7,7 +7,7 @@ A clipboard manager written in Rust with offline local storage.
 - Persistent local storage of clipboard history using SQLite
 - User-configurable settings saved via TOML config files
 - Runs as a background system tray application
-- Filter clipboard entries by date and custom user tags
+- Filter clipboard entries by date and customizable user tags
 
 ## Usage
 
