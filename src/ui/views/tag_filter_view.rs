@@ -123,12 +123,12 @@ impl TagFilterView {
                                 ui.spacing_mut().item_spacing.y = 10.0;
 
                                 // Calculate centering
-                                let total_buttons = chunk.len();
-                                let total_button_width = (total_buttons as f32) * button_width;
-                                let total_spacing =
-                                    ((total_buttons - 1) as f32) * ui.spacing().item_spacing.x;
-                                let used_width = total_button_width + total_spacing;
-                                let available_width = ui.available_width();
+                                // let total_buttons = chunk.len();
+                                // let total_button_width = (total_buttons as f32) * button_width;
+                                // let total_spacing =
+                                //     ((total_buttons - 1) as f32) * ui.spacing().item_spacing.x;
+                                // let used_width = total_button_width + total_spacing;
+                                // let available_width = ui.available_width();
                                 // let leftover_space = available_width - used_width;
                                 // let left_margin = (leftover_space / 2.0).max(0.0);
                                 // ui.add_space(left_margin);

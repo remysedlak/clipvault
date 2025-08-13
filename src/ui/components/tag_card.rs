@@ -85,7 +85,7 @@ fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) -> bool {
     let mut tag_deleted = false;
     
     ui.horizontal(|ui| {
-        if ui.color_edit_button_srgba(&mut color).changed() {
+        if ui.color_edit_button_srgba(&mut color).on_hover_text("Set tag color").changed() {
             tag.color = Some(color32_to_hex(color));
             let color_ref = tag.color.as_deref();
             if let Err(e) = db::update_tag_color(db, tag.id, color_ref) {
@@ -93,14 +93,14 @@ fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) -> bool {
             }
         }
         
-        if ui.button("Reset Color").clicked() {
+        if ui.button("Reset Color").on_hover_text("Reset color back to default").clicked() {
             tag.color = None;
             if let Err(e) = db::update_tag_color(db, tag.id, None) {
                 eprintln!("Failed to reset tag color: {}", e);
             }
         }
         
-        if ui.button("🗑").clicked() {
+        if ui.button("🗑").on_hover_text("Delete tag").clicked() {
             if let Err(e) = db::delete_tag(db, tag.id) {
                 eprintln!("Failed to delete tag: {}", e);
             } else {

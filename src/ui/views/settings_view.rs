@@ -1,14 +1,5 @@
 use crate::models::{ UiState, UiMode };
-use eframe::egui::{
-    self,
-    Color32,
-    RichText,
-    Layout,
-    TopBottomPanel,
-    CentralPanel,
-    Rounding,
-    Vec2,
-};
+use eframe::egui::{ self, Color32, RichText, Layout, TopBottomPanel, CentralPanel, Rounding, Vec2 };
 
 pub struct SettingsView;
 
@@ -35,9 +26,7 @@ impl SettingsView {
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         let back_button = ui.add_sized(
                             [60.0, 20.0],
-                            egui::Button
-                                ::new("Back to Clips...")
-                                .rounding(Rounding::same(6.0))
+                            egui::Button::new("Back to Clips...").rounding(Rounding::same(6.0))
                         );
 
                         if back_button.on_hover_text("Return to main view").clicked() {
@@ -62,7 +51,6 @@ impl SettingsView {
                         .inner_margin(egui::Margin::same(32.0))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
-
                                 // Reset Settings Button
                                 let reset_button = ui.add_sized(
                                     [280.0, 48.0],
