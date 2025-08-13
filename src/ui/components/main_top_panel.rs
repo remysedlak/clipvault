@@ -21,7 +21,8 @@ impl TopPanel {
             ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                 // Show/Hide content toggle
                 let show_content_label = if *show_content { "🙈 Hide" } else { "👁 Show" };
-                if ui.button("Settings").on_hover_text("Settings").clicked() {
+                let settings_icon = "\u{2699}";
+                if ui.button(settings_icon).on_hover_text("Settings").clicked() {
                     response.settings = true;
                 }
                 if ui
