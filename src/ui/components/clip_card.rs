@@ -1,7 +1,7 @@
 use crate::models::Clip;
 use crate::utils::formatting::format_timestamp;
 use eframe::egui::{ self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle };
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap};
 
 pub struct ClipCard;
 
@@ -112,7 +112,6 @@ impl ClipCard {
 
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         ui.set_max_width(200.0);
-
                         if
                             ui
                                 .add_sized(BUTTON_SIZE, egui::Button::new("📋"))

@@ -23,6 +23,8 @@ pub struct ClipVaultApp {
 
 impl ClipVaultApp {
     pub fn new(db: Connection) -> Self {
+
+        // Load recent clips
         let clips = db
             ::load_recent_clips(&db, 20)
             .unwrap_or_default()
@@ -30,9 +32,11 @@ impl ClipVaultApp {
             .map(Clip::from_tuple)
             .collect();
 
+        // Load settings and determine dark mode
         let (settings, settings_path) = Settings::load();
         let darkmode = settings.theme == Theme::Dark;
 
+        // Load tags and clip relationships
         let tags = db
             ::load_tags(&db)
             .unwrap_or_default()
@@ -42,6 +46,7 @@ impl ClipVaultApp {
 
         let clip_tags = db::load_clip_tags(&db).unwrap_or_default();
 
+        // Initialize the application state
         Self {
             clips,
             db,
@@ -57,12 +62,15 @@ impl ClipVaultApp {
 }
 
 impl eframe::App for ClipVaultApp {
+
+    /// save the settings on exit
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
         self.settings.theme = if self.darkmode { Theme::Dark } else { Theme::Light };
         self.settings.mode = self.ui_state.ui_mode;
         let _ = self.settings.save(&self.settings_path);
     }
 
+    /// main update loop
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         if !self.window_visible {
             // Do nothing or optionally paint a tray icon or background tasks
@@ -73,6 +81,8 @@ impl eframe::App for ClipVaultApp {
         } else {
             ctx.set_visuals(egui::Visuals::light());
         }
+
+        /// Show the top panel with date picker, content toggle, and settings
         if self.ui_state.ui_mode == UiMode::Main {
             egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
                 let response = TopPanel::show(
@@ -124,6 +134,7 @@ impl eframe::App for ClipVaultApp {
             });
         }
 
+        // Show the main content area under the top panel
         egui::CentralPanel::default().show(ctx, |ui| {
             match self.ui_state.ui_mode {
                 UiMode::Main => {

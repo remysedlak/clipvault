@@ -17,7 +17,7 @@ pub enum Theme {
     Dark,
 }
 
-// Default for Settings, not Theme
+/// Default for Settings, not Theme
 impl Default for Settings {
     fn default() -> Self {
         Settings {
@@ -27,7 +27,7 @@ impl Default for Settings {
     }
 }
 
-// Default for Theme (optional if already derived on enum)
+/// Default for Theme (optional if already derived on enum)
 impl Default for Theme {
     fn default() -> Self {
         Theme::Light
@@ -36,10 +36,13 @@ impl Default for Theme {
 
 impl Settings {
     pub fn load() -> (Self, PathBuf) {
+
+        /// Use directories crate to find the path
         let proj_dirs = ProjectDirs::from("com", "remysedlak", "clipvault")
             .expect("Unable to get project dirs");
         let path = proj_dirs.config_dir().join("settings.toml");
 
+        /// Create the config directory if it doesn't exist
         let settings = fs::read_to_string(&path)
             .ok()
             .and_then(|s| toml::from_str(&s).ok())
@@ -48,6 +51,7 @@ impl Settings {
         (settings, path)
     }
 
+    /// Save settings to the specified path
     pub fn save(&self, path: &PathBuf) {
         if let Ok(toml) = toml::to_string(self) {
             let _ = fs::create_dir_all(path.parent().unwrap());
