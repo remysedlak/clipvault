@@ -118,9 +118,8 @@ impl ClipCard {
                                 .on_hover_text("Copy this text to clipboard")
                                 .clicked()
                         {
-                            ctx.output_mut(|o| {
-                                o.copied_text = clip.content.clone();
-                            });
+                            ctx.copy_text(clip.content.clone());
+
                             response.copied = true;
                         }
 
