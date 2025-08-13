@@ -104,12 +104,11 @@ impl TagFilterView {
 
                         let available_width = ui.available_width();
                         let button_width = 150.0;
-                        let buttons_per_row =
-                            ((available_width - 40.0) / (button_width + 10.0)).floor() as usize;
+                        let buttons_per_row = ((available_width - 40.0) / (button_width + 10.0)).floor() as usize;
                         let buttons_per_row = buttons_per_row.max(1);
 
                         for chunk in tags.chunks_mut(buttons_per_row) {
-                            ui.vertical(|ui| {
+                            ui.horizontal(|ui| {
                                 ui.spacing_mut().item_spacing.y = 10.0;
 
                                 for tag in chunk {
@@ -126,7 +125,7 @@ impl TagFilterView {
                                         .inner_margin(Margin::symmetric(15.0, 12.0))
                                         .show(ui, |ui| {
                                             ui.set_min_size([button_width, 50.0].into());
-
+                                            ui.vertical(|ui| {
                                             let button = ui.add_sized(
                                                 [button_width - 30.0, 35.0],
                                                 egui::Button::new(
@@ -145,6 +144,8 @@ impl TagFilterView {
                                                 ui_state.ui_mode = UiMode::Main;
                                             }
 
+                                            
+
                                             if let Ok(count) = db::count_clips_for_tag(db, &tag.id) {
                                                 ui.label(
                                                     RichText::new(format!("{} clips", count))
@@ -155,6 +156,7 @@ impl TagFilterView {
 
                                             // Pass `db` to allow DB updates inside the picker
                                             tag_color_picker(ui, tag, db);
+                                        });
                                         });
                                 }
                             });
