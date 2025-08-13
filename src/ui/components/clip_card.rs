@@ -1,7 +1,7 @@
 use crate::models::Clip;
 use crate::utils::formatting::format_timestamp;
 use eframe::egui::{ self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle };
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 pub struct ClipCard;
 
@@ -21,6 +21,8 @@ impl ClipCard {
         if clip.is_empty() {
             return response;
         }
+
+        const BUTTON_SIZE: [f32; 2] = [25.0, 20.0];
 
         // Outer card frame
         EguiFrame::none()
@@ -55,8 +57,10 @@ impl ClipCard {
                     });
                 });
 
-                ui.add_space(6.0);
+                ui.add_space(2.0);
                 ui.separator();
+                ui.add_space(2.0);
+                
                 // Tags section
                 ui.horizontal(|ui| {
                     ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
@@ -91,13 +95,15 @@ impl ClipCard {
                             }
                         }
 
-                        if ui.button("+").on_hover_text("Add tags to clip.").clicked() {
+                        if ui.add_sized(BUTTON_SIZE, egui::Button::new("+")).on_hover_text("Add tags to clip.").clicked() {
                             response.add_tag_requested = true;
                         }
 
                         ui.set_max_width(200.0);
                     });
                 });
+
+                ui.add_space(6.0);
 
                 // Timestamp and action buttons
                 ui.horizontal(|ui| {
@@ -109,7 +115,7 @@ impl ClipCard {
 
                         if
                             ui
-                                .add_sized([35.0, 20.0], egui::Button::new("📋"))
+                                .add_sized(BUTTON_SIZE, egui::Button::new("📋"))
                                 .on_hover_text("Copy this text to clipboard")
                                 .clicked()
                         {
@@ -121,7 +127,7 @@ impl ClipCard {
 
                         if
                             ui
-                                .add_sized([35.0, 20.0], egui::Button::new("🗑"))
+                                .add_sized(BUTTON_SIZE, egui::Button::new("🗑"))
                                 .on_hover_text("Delete this entry")
                                 .clicked()
                         {
@@ -131,7 +137,7 @@ impl ClipCard {
                         let pin_label = if clip.pinned { "📌 Unpin" } else { "📌" };
                         if
                             ui
-                                .add_sized([35.0, 20.0], egui::Button::new(pin_label))
+                                .add_sized(BUTTON_SIZE, egui::Button::new(pin_label))
                                 .on_hover_text(
                                     if clip.pinned {
                                         "Unpin this entry"
