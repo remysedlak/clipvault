@@ -14,7 +14,7 @@ impl TopPanel {
         let mut response = TopPanelResponse::default();
         ui.add_space(4.0);
         ui.horizontal(|ui| {
-            ui.heading("📋 ClipVault");
+            ui.heading("ClipVault");
             ui.separator();
             ui.label("Recent clipboard history");
 

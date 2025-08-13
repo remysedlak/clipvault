@@ -1,5 +1,5 @@
 // Flag for hiding the terminal on Windows
-#![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
+// #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
 mod clipboard;
 mod db;
@@ -8,7 +8,6 @@ mod ui;
 mod settings;
 mod models;
 mod utils;
-use eframe::NativeOptions;
 use std::{ error::Error, sync::{ Arc, Mutex, mpsc }, thread, path::PathBuf, env, process::Command };
 use tray_icon::{ TrayIconBuilder, menu::{ Menu, MenuEvent, MenuItem } };
 use winit::event_loop::{ ControlFlow, EventLoop };
