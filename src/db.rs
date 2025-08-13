@@ -125,6 +125,7 @@ pub fn load_tags(conn: &Connection) -> Result<Vec<(i64, String, Option<String>)>
         }
     };
 
+
     let tags_iter = match stmt.query_map([], |row| {
         Ok((
             row.get::<_, i64>(0)?,
@@ -154,6 +155,20 @@ pub fn load_tags(conn: &Connection) -> Result<Vec<(i64, String, Option<String>)>
     Ok(tags)
 }
 
+pub fn delete_tag(conn: &Connection, tag_id: i64) -> Result<usize> {
+    println!("Deleting tag with ID: {}", tag_id);
+    let result = conn.execute("DELETE FROM tags WHERE id = ?1", params![tag_id]);
+    match result {
+        Ok(rows) => {
+            println!("Deleted {} row(s).", rows);
+            Ok(rows)
+        }
+        Err(e) => {
+            println!("Error deleting tag: {}", e);
+            Err(e)
+        }
+    }
+}
 pub fn update_tag_color(conn: &Connection, tag_id: i64, color: Option<&str>) -> Result<()> {
     conn.execute(
         "UPDATE tags SET color = ?1 WHERE id = ?2",

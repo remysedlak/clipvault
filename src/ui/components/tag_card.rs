@@ -7,6 +7,7 @@ use eframe::egui::{
 use rusqlite::Connection;
 
 /// Renders a single tag card with button, clip count, and color picker
+/// Returns true if the tag was deleted and needs to be refreshed
 pub fn show(
     ui: &mut Ui,
     tag: &mut Tag,
@@ -14,7 +15,9 @@ pub fn show(
     clips: &mut Vec<Clip>,
     ui_state: &mut UiState,
     button_width: f32,
-) {
+) -> bool {
+    let mut tag_deleted = false;
+    
     Frame::none()
         .rounding(8.0)
         .fill(if ui.visuals().dark_mode {
@@ -36,7 +39,6 @@ pub fn show(
                             .strong(),
                     ),
                 );
-
                 if button.clicked() {
                     *clips = db::load_clips_for_tag(db, &tag.id)
                         .unwrap_or_default()
@@ -45,7 +47,7 @@ pub fn show(
                         .collect();
                     ui_state.ui_mode = UiMode::Main;
                 }
-
+                
                 // Clip count display
                 if let Ok(count) = db::count_clips_for_tag(db, &tag.id) {
                     ui.label(
@@ -54,15 +56,20 @@ pub fn show(
                             .color(Color32::GRAY),
                     );
                 }
-
+                
+                ui.add_sized([button_width, 1.0], egui::Separator::default().horizontal());
+                
                 // Color picker
-                color_picker(ui, tag, db);
+                tag_deleted = color_picker(ui, tag, db);
             });
         });
+    
+    tag_deleted
 }
 
 /// Color picker component for the tag
-fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) {
+/// Returns true if the tag was deleted
+fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) -> bool {
     let mut color = tag
         .color
         .as_ref()
@@ -74,7 +81,9 @@ fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) {
                 Color32::DARK_GRAY
             }
         });
-
+    
+    let mut tag_deleted = false;
+    
     ui.horizontal(|ui| {
         if ui.color_edit_button_srgba(&mut color).changed() {
             tag.color = Some(color32_to_hex(color));
@@ -83,14 +92,25 @@ fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) {
                 eprintln!("Failed to update tag color: {}", e);
             }
         }
-
+        
         if ui.button("Reset Color").clicked() {
             tag.color = None;
             if let Err(e) = db::update_tag_color(db, tag.id, None) {
                 eprintln!("Failed to reset tag color: {}", e);
             }
         }
+        
+        if ui.button("🗑").clicked() {
+            if let Err(e) = db::delete_tag(db, tag.id) {
+                eprintln!("Failed to delete tag: {}", e);
+            } else {
+                tag_deleted = true;
+                ui.close_menu();
+            }
+        }
     });
+    
+    tag_deleted
 }
 
 /// Helper: convert Color32 to hex string like "#RRGGBB"

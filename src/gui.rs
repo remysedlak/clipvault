@@ -140,6 +140,7 @@ impl eframe::App for ClipVaultApp {
                     &self.db,
                     &mut self.ui_state,
                     &mut self.tags,
+                    &mut self.clip_tags
                 );
             }
 
