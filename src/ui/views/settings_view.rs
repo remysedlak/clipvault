@@ -1,5 +1,5 @@
 use crate::models::{ UiState, UiMode };
-use eframe::egui::{ self, Color32, RichText, Layout, TopBottomPanel, CentralPanel, Rounding, Vec2 };
+use eframe::egui::{ self, Color32, RichText, Layout, TopBottomPanel, CentralPanel, CornerRadius, Vec2 };
 
 pub struct SettingsView;
 
@@ -26,7 +26,7 @@ impl SettingsView {
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         let back_button = ui.add_sized(
                             [60.0, 20.0],
-                            egui::Button::new("Back to Clips...").rounding(Rounding::same(6.0))
+                            egui::Button::new("Back to Clips...").corner_radius(CornerRadius::same(6))
                         );
 
                         if back_button.on_hover_text("Return to main view").clicked() {
@@ -45,10 +45,10 @@ impl SettingsView {
 
                     // Settings section with card-like appearance
                     egui::Frame
-                        ::none()
+                        ::new()
                         .stroke(stroke)
-                        .rounding(Rounding::same(12.0))
-                        .inner_margin(egui::Margin::same(32.0))
+                        .corner_radius(CornerRadius::same(12))
+                        .inner_margin(egui::Margin::same(32))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
                                 // Reset Settings Button
@@ -57,7 +57,7 @@ impl SettingsView {
                                     egui::Button
                                         ::new(RichText::new("🔄 Reset User Settings").size(16.0))
                                         .fill(Color32::from_rgb(59, 130, 246))
-                                        .rounding(Rounding::same(8.0))
+                                        .corner_radius(CornerRadius::same(8))
                                 );
 
                                 if
@@ -82,7 +82,7 @@ impl SettingsView {
                                     egui::Button
                                         ::new(RichText::new("🚮 Delete All Entries").size(16.0))
                                         .fill(Color32::from_rgb(240, 80, 80))
-                                        .rounding(Rounding::same(8.0))
+                                        .corner_radius(CornerRadius::same(8))
                                 );
 
                                 if
@@ -151,7 +151,7 @@ impl SettingsView {
                                 egui::Button
                                     ::new(RichText::new("Yes, Delete").color(Color32::WHITE))
                                     .fill(Color32::from_rgb(220, 38, 38))
-                                    .rounding(Rounding::same(6.0))
+                                    .corner_radius(CornerRadius::same(6))
                             );
 
                             if delete_btn.clicked() {
@@ -167,7 +167,7 @@ impl SettingsView {
                                 egui::Button
                                     ::new("Cancel")
                                     .fill(Color32::from_rgb(75, 85, 99))
-                                    .rounding(Rounding::same(6.0))
+                                    .corner_radius(CornerRadius::same(6))
                             );
 
                             if cancel_btn.clicked() {

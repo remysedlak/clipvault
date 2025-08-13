@@ -25,10 +25,10 @@ impl ClipCard {
         const BUTTON_SIZE: [f32; 2] = [25.0, 20.0];
 
         // Outer card frame
-        EguiFrame::none()
-            .rounding(8.0)
-            .inner_margin(egui::Margin::symmetric(10.0, 10.0))
-            .outer_margin(egui::Margin::symmetric(20.0, 0.0))
+        EguiFrame::new()
+            .corner_radius(8)
+            .inner_margin(egui::Margin::symmetric(10, 10))
+            .outer_margin(egui::Margin::symmetric(20, 0))
             .fill(
                 if darkmode {
                     Color32::from_rgb(40, 40, 40)
@@ -39,7 +39,7 @@ impl ClipCard {
             .stroke(Stroke::new(1.0, Color32::BLACK))
             .show(ui, |ui| {
                 // Content section
-                EguiFrame::none().show(ui, |ui| {
+                EguiFrame::new().show(ui, |ui| {
                     ui.vertical(|ui| {
                         ui.add(
                             Label::new(
@@ -79,11 +79,11 @@ impl ClipCard {
                                     });
 
                                 egui::Frame
-                                    ::none()
+                                    ::new()
                                     .fill(tag_color)
                                     .stroke(Stroke::new(1.0, contrast_color(tag_color)))
-                                    .rounding(egui::Rounding::same(6.0))
-                                    .inner_margin(egui::Margin::symmetric(4.0, 4.0))
+                                    .corner_radius(egui::CornerRadius::same(6))
+                                    .inner_margin(egui::Margin::symmetric(4, 4))
                                     .show(ui, |ui| {
                                         ui.label(
                                             egui::RichText

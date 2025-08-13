@@ -18,15 +18,15 @@ pub fn show(
 ) -> bool {
     let mut tag_deleted = false;
     
-    Frame::none()
-        .rounding(8.0)
+    Frame::new()
+        .corner_radius(8)
         .fill(if ui.visuals().dark_mode {
             Color32::from_rgb(40, 40, 40)
         } else {
             Color32::from_rgb(240, 240, 240)
         })
         .stroke(Stroke::new(1.0, Color32::BLACK))
-        .inner_margin(Margin::symmetric(15.0, 12.0))
+        .inner_margin(Margin::symmetric(15, 12))
         .show(ui, |ui| {
             ui.set_min_size([button_width, 50.0].into());
             ui.vertical(|ui| {
@@ -105,7 +105,7 @@ fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) -> bool {
                 eprintln!("Failed to delete tag: {}", e);
             } else {
                 tag_deleted = true;
-                ui.close_menu();
+                ui.close();
             }
         }
     });

@@ -19,9 +19,9 @@ path = "src/lib.rs"
 tray-icon = "0.14"
 winit = "0.29"
 image = "0.24"
-eframe = "0.28"
-egui = "0.28"
-egui_extras = { version = "0.28", features = ["datepicker", "chrono"] }
+eframe = "0.32"
+egui = "0.32"
+egui_extras = { version = "0.32", features = ["datepicker", "chrono"] }
 rusqlite = { version = "0.30", features = ["bundled"] }
 arboard = "3.6"   # clipboard access crate
 copypasta = "0.6"

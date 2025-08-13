@@ -1,16 +1,17 @@
+use crate::db;
 use crate::models::{ Clip, Tag, UiState, UiMode };
-use crate::ui::components::tag_card;
 use crate::ui::popups::create_tag::CreateTagPopup;
+use crate::utils::formatting::hex_to_color32;
 use eframe::egui::{
     self,
     Layout,
     TopBottomPanel,
     CentralPanel,
-    ScrollArea,
     Color32,
     RichText,
     TextStyle,
 };
+use egui_extras::{Column, TableBuilder};
 use rusqlite::Connection;
 
 pub struct TagFilterView;
@@ -55,7 +56,7 @@ impl TagFilterView {
         TopBottomPanel::bottom("tag_filter_bottom_panel")
             .min_height(80.0)
             .show(ctx, |ui| {
-                ui.add_space(10.0);
+                ui.add_space(2.0);
                 ui.vertical_centered(|ui| {
                     if tags.is_empty() {
                         ui.label(
@@ -65,7 +66,7 @@ impl TagFilterView {
                         );
                     } else {
                         ui.label(
-                            RichText::new("Click a tag to filter clips, or create a new one")
+                            RichText::new("Click a tag to filter clips, or manage colors and settings")
                                 .color(Color32::GRAY)
                                 .text_style(TextStyle::Small)
                         );
@@ -105,44 +106,124 @@ impl TagFilterView {
                     });
                 });
             } else {
-                ScrollArea::vertical()
-                    .auto_shrink([false; 2])
-                    .show(ui, |ui| {
-                        let available_width = ui.available_width();
-                        let button_width = 150.0;
-                        let buttons_per_row = (
-                            (available_width - 40.0) /
-                            (button_width + 10.0)
-                        ).floor() as usize;
-                        let buttons_per_row = buttons_per_row.max(1);
+                ui.vertical(|ui| {
 
+                        
                         let mut refresh_needed = false;
+                        let mut tags_to_delete = Vec::new();
+                        
+                        // Create the tags table
+                        TableBuilder::new(ui)
+                            .striped(true)
+                            .resizable(false)
+                            .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+                            .column(Column:: remainder())   // Tag name
+                            .column(Column:: remainder())     // Clip count
+                            .column(Column:: remainder())     // Color picker
+                            .column(Column:: remainder())     // Delete button
+                            .header(30.0, |mut header| {
 
-                        for chunk in tags.chunks_mut(buttons_per_row) {
-                            ui.horizontal(|ui| {
-                                ui.spacing_mut().item_spacing.y = 10.0;
-
-                                // Calculate centering
-                                // let total_buttons = chunk.len();
-                                // let total_button_width = (total_buttons as f32) * button_width;
-                                // let total_spacing =
-                                //     ((total_buttons - 1) as f32) * ui.spacing().item_spacing.x;
-                                // let used_width = total_button_width + total_spacing;
-                                // let available_width = ui.available_width();
-                                // let leftover_space = available_width - used_width;
-                                // let left_margin = (leftover_space / 2.0).max(0.0);
-                                // ui.add_space(left_margin);
-
-                                for tag in chunk {
-                                    if tag_card::show(ui, tag, db, clips, ui_state, button_width) {
-                                        refresh_needed = true;
-                                    }
+                                header.col(|ui| {
+                                    ui.strong("Tag Name");
+                                });
+                                header.col(|ui| {
+                                    ui.strong("Clips");
+                                });
+                                header.col(|ui| {
+                                    ui.strong("Color");
+                                });
+                                header.col(|ui| {
+                                    ui.strong("Delete");
+                                });
+                            })
+                            .body(|mut body| {
+                                for (index, tag) in tags.iter_mut().enumerate() {
+                                    body.row(35.0, |mut row| {
+                                        
+                                        
+                                        // Tag name column (clickable button)
+                                        row.col(|ui| {
+                                            let button = ui.add_sized(
+                                                [ui.available_width(), 25.0],
+                                                egui::Button::new(
+                                                    RichText::new(&tag.name)
+                                                        .text_style(TextStyle::Button)
+                                                )
+                                            );
+                                            
+                                            if button.clicked() {
+                                                *clips = db::load_clips_for_tag(db, &tag.id)
+                                                    .unwrap_or_default()
+                                                    .into_iter()
+                                                    .map(Clip::from_tuple)
+                                                    .collect();
+                                                ui_state.ui_mode = UiMode::Main;
+                                            }
+                                        });
+                                        
+                                        // Clip count column
+                                        row.col(|ui| {
+                                            if let Ok(count) = db::count_clips_for_tag(db, &tag.id) {
+                                                ui.label(
+                                                    RichText::new(format!("{}", count))
+                                                        .text_style(TextStyle::Body)
+                                                        .color(if count > 0 { Color32::WHITE } else { Color32::GRAY })
+                                                );
+                                            } else {
+                                                ui.label(
+                                                    RichText::new("?")
+                                                        .text_style(TextStyle::Body)
+                                                        .color(Color32::RED)
+                                                );
+                                            }
+                                        });
+                                        
+                                        // Color picker column
+                                        row.col(|ui| {
+                                            let mut color = tag
+                                                .color
+                                                .as_ref()
+                                                .and_then(|hex| hex_to_color32(hex))
+                                                .unwrap_or_else(|| {
+                                                    if ui.visuals().dark_mode {
+                                                        Color32::LIGHT_GRAY
+                                                    } else {
+                                                        Color32::DARK_GRAY
+                                                    }
+                                                });
+                                            
+                                            if ui.color_edit_button_srgba(&mut color)
+                                                .on_hover_text("Set tag color")
+                                                .changed() 
+                                            {
+                                                tag.color = Some(color32_to_hex(color));
+                                                let color_ref = tag.color.as_deref();
+                                                if let Err(e) = db::update_tag_color(db, tag.id, color_ref) {
+                                                    eprintln!("Failed to update tag color: {}", e);
+                                                }
+                                            }
+                                        });
+                                        
+                                        
+                                        // Delete button column
+                                        row.col(|ui| {
+                                            if ui.small_button("🗑")
+                                                .on_hover_text("Delete tag")
+                                                .clicked() 
+                                            {
+                                                if let Err(e) = db::delete_tag(db, tag.id) {
+                                                    eprintln!("Failed to delete tag: {}", e);
+                                                } else {
+                                                    tags_to_delete.push(index);
+                                                    refresh_needed = true;
+                                                }
+                                            }
+                                        });
+                                    });
                                 }
                             });
-                            ui.add_space(15.0);
-                        }
 
-                        // Handle refresh outside the loop to avoid borrowing conflicts
+                        // Handle refresh outside the table to avoid borrowing conflicts
                         if refresh_needed {
                             if let Ok(db_tags) = crate::db::load_tags(db) {
                                 *tags = db_tags.into_iter().map(Tag::from_tuple).collect();
@@ -150,7 +231,7 @@ impl TagFilterView {
                             *clip_tags = crate::db::load_clip_tags(db).unwrap_or_default();
                         }
 
-                        ui.add_space(20.0);
+                        ui.add_space(2.0);
                     });
             }
         });
@@ -159,4 +240,9 @@ impl TagFilterView {
             CreateTagPopup::show(ctx, ui_state, db, tags);
         }
     }
+}
+
+// Helper: convert Color32 to hex string like "#RRGGBB"
+fn color32_to_hex(color: Color32) -> String {
+    format!("#{:02X}{:02X}{:02X}", color.r(), color.g(), color.b())
 }

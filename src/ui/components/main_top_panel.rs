@@ -40,8 +40,7 @@ impl TopPanel {
 
                 // Date picker
                 if
-                    ui
-                        .add(
+                    ui.add(
                             DatePickerButton::new(date)
                                 .show_icon(true)
                                 .highlight_weekends(false)
