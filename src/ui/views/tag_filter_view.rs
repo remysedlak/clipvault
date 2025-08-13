@@ -120,7 +120,7 @@ impl TagFilterView {
                             .column(Column:: remainder())   // Tag name
                             .column(Column:: remainder())     // Clip count
                             .column(Column:: remainder())     // Color picker
-                            .column(Column:: remainder())     // Delete button
+                            .column(Column::exact(60.0))     // Delete button
                             .header(30.0, |mut header| {
 
                                 header.col(|ui| {
