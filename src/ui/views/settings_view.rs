@@ -29,8 +29,6 @@ impl SettingsView {
                         let back_button = ui.add_sized(
                             [120.0, 32.0], 
                             egui::Button::new(RichText::new("Back to Clips").size(14.0))
-                                .fill(bg_color)
-                                .stroke(stroke)
                                 .rounding(Rounding::same(6.0))
                         );
                         
@@ -67,7 +65,6 @@ impl SettingsView {
                                     [280.0, 48.0],
                                     egui::Button::new(RichText::new("🔄 Reset User Settings").size(16.0))
                                         .fill(Color32::from_rgb(59, 130, 246))
-                                        .stroke(Stroke::new(1.0, Color32::from_rgb(37, 99, 235)))
                                         .rounding(Rounding::same(8.0))
                                 );
                                 
@@ -87,9 +84,8 @@ impl SettingsView {
                                 // Delete All Button
                                 let delete_button = ui.add_sized(
                                     [280.0, 48.0],
-                                    egui::Button::new(RichText::new("🚮 Delete All Entries").size(16.0).color(Color32::WHITE))
-                                        .fill(Color32::from_rgb(220, 38, 38))
-                                        .stroke(Stroke::new(1.0, Color32::from_rgb(185, 28, 28)))
+                                    egui::Button::new(RichText::new("🚮 Delete All Entries").size(16.0))
+                                        .fill(Color32::from_rgb(240, 80, 80))
                                         .rounding(Rounding::same(8.0))
                                 );
                                 

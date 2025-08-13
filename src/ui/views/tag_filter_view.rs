@@ -109,16 +109,7 @@ impl TagFilterView {
                                 for tag in chunk {
                                     // Enhanced tag button with card styling
                                     let _ = Frame::none()
-                                        .fill(if ui.visuals().dark_mode {
-                                            Color32::from_rgb(50, 50, 60)
-                                        } else {
-                                            Color32::from_rgb(248, 249, 250)
-                                        })
-                                        .stroke(Stroke::new(1.0, if ui.visuals().dark_mode {
-                                            Color32::from_rgb(70, 70, 80)
-                                        } else {
-                                            Color32::from_rgb(220, 220, 220)
-                                        }))
+
                                         .rounding(8.0)
                                         .inner_margin(Margin::symmetric(15.0, 12.0))
                                         .show(ui, |ui| {
@@ -131,8 +122,6 @@ impl TagFilterView {
                                                         .text_style(TextStyle::Button)
                                                         .strong()
                                                 )
-                                                .fill(Color32::TRANSPARENT)
-                                                .stroke(Stroke::NONE)
                                             );
                                             
                                             if button.clicked() {
