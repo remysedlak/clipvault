@@ -162,12 +162,13 @@ impl TagFilterView {
                                         });
                                         
                                         // Clip count column
+
                                         row.col(|ui| {
                                             if let Ok(count) = db::count_clips_for_tag(db, &tag.id) {
                                                 ui.label(
                                                     RichText::new(format!("{}", count))
                                                         .text_style(TextStyle::Body)
-                                                        .color(if count > 0 { Color32::WHITE } else { Color32::GRAY })
+                                                        
                                                 );
                                             } else {
                                                 ui.label(
