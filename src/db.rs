@@ -341,8 +341,8 @@ pub fn toggle_pin_clip(conn: &Connection, id: i64) -> Result<usize> {
     )
 }
 
-/// Load clips that fall on a specific UTC date
-/// Load clips that fall on a specific LOCAL date (converts to UTC for query)
+// Load clips that fall on a specific UTC date
+// Load clips that fall on a specific LOCAL date (converts to UTC for query)
 pub fn load_clips_for_date(
     conn: &Connection,
     date: chrono::NaiveDate,

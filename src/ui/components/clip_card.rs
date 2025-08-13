@@ -6,7 +6,7 @@ use std::{collections::HashMap};
 pub struct ClipCard;
 
 impl ClipCard {
-    /// Added `tag_colors` mapping tag name -> Color32 for showing colors
+    // Added `tag_colors` mapping tag name -> Color32 for showing colors
     pub fn show(
         ui: &mut egui::Ui,
         ctx: &egui::Context,
@@ -164,7 +164,7 @@ pub struct ClipCardResponse {
     pub add_tag_requested: bool,
 }
 
-/// Helper for contrasting text color on a colored background
+// Helper for contrasting text color on a colored background
 fn contrast_color(bg: Color32) -> Color32 {
     let brightness = 0.299 * (bg.r() as f32) + 0.587 * (bg.g() as f32) + 0.114 * (bg.b() as f32);
     if brightness > 186.0 {

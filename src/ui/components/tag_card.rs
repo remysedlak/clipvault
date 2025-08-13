@@ -6,8 +6,8 @@ use eframe::egui::{
 };
 use rusqlite::Connection;
 
-/// Renders a single tag card with button, clip count, and color picker
-/// Returns true if the tag was deleted and needs to be refreshed
+// Renders a single tag card with button, clip count, and color picker
+// Returns true if the tag was deleted and needs to be refreshed
 pub fn show(
     ui: &mut Ui,
     tag: &mut Tag,
@@ -67,8 +67,8 @@ pub fn show(
     tag_deleted
 }
 
-/// Color picker component for the tag
-/// Returns true if the tag was deleted
+// Color picker component for the tag
+// Returns true if the tag was deleted
 fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) -> bool {
     let mut color = tag
         .color
@@ -113,7 +113,7 @@ fn color_picker(ui: &mut Ui, tag: &mut Tag, db: &Connection) -> bool {
     tag_deleted
 }
 
-/// Helper: convert Color32 to hex string like "#RRGGBB"
+// Helper: convert Color32 to hex string like "#RRGGBB"
 fn color32_to_hex(color: Color32) -> String {
     format!("#{:02X}{:02X}{:02X}", color.r(), color.g(), color.b())
 }
