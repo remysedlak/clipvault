@@ -13,7 +13,7 @@ impl TagAssignmentPopup {
         ui_state: &mut UiState,
         db: &Connection,
         clip_tags: &mut HashMap<i64, Vec<String>>,
-        tags: &[(i64, String)],
+        tags: &[(i64, String, Option<String>)], // Updated to include color
     ) {
         egui::Window::new("Assign Tag")
             .collapsible(false)
@@ -27,7 +27,7 @@ impl TagAssignmentPopup {
                     .unwrap_or_default();
                 egui::ScrollArea::vertical()
                     .show(ui, |ui| {
-                        for (tag_id, tag_name) in tags {
+                        for (tag_id, tag_name, _) in tags {
                             if !assigned.contains(tag_name) {
                                 let is_selected = ui_state.selected_tag_id == Some(*tag_id);
                                 if ui

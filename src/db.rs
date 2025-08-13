@@ -35,7 +35,8 @@ pub fn init_db() -> Result<Connection> {
         "
         CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL
+            name TEXT UNIQUE NOT NULL,
+            color TEXT DEFAULT NULL
         )
         ",
         [],
@@ -114,9 +115,9 @@ pub fn load_clip_tags(conn: &Connection) -> Result<HashMap<i64, Vec<String>>> {
     Ok(map)
 }
 
-pub fn load_tags(conn: &Connection) -> Result<Vec<(i64, String)>> {
+pub fn load_tags(conn: &Connection) -> Result<Vec<(i64, String, Option<String>)>> {
     println!("Getting all tags...");
-    let mut stmt = match conn.prepare("SELECT id, name FROM tags ORDER BY name ASC") {
+    let mut stmt = match conn.prepare("SELECT id, name, color FROM tags ORDER BY name ASC") {
         Ok(s) => s,
         Err(e) => {
             println!("Error preparing statement: {}", e);
@@ -124,7 +125,13 @@ pub fn load_tags(conn: &Connection) -> Result<Vec<(i64, String)>> {
         }
     };
 
-    let tags_iter = match stmt.query_map([], |row| Ok((row.get(0)?, row.get(1)?))) {
+    let tags_iter = match stmt.query_map([], |row| {
+        Ok((
+            row.get::<_, i64>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, Option<String>>(2)? // color can be NULL, so use Option<String>
+        ))
+    }) {
         Ok(iter) => iter,
         Err(e) => {
             println!("Error querying tags: {}", e);
@@ -146,6 +153,15 @@ pub fn load_tags(conn: &Connection) -> Result<Vec<(i64, String)>> {
     println!("Tags received: {}", tags.len());
     Ok(tags)
 }
+
+pub fn update_tag_color(conn: &Connection, tag_id: i64, color: Option<&str>) -> Result<()> {
+    conn.execute(
+        "UPDATE tags SET color = ?1 WHERE id = ?2",
+        params![color, tag_id],
+    )?;
+    Ok(())
+}
+
 
 pub fn load_clips_for_tag(conn: &Connection, tag_id: &i64) -> Result<Vec<(i64, String, i64, bool)>> {
     println!("Loading clips for tag_id: {}", tag_id);

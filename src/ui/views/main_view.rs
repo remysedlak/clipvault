@@ -1,10 +1,11 @@
 use crate::db;
-use crate::models::{Clip, UiState};
-use crate::ui::components::clip_card::{ClipCard};
+use crate::models::{ Clip, UiState };
+use crate::ui::components::clip_card::{ ClipCard };
 use crate::ui::popups::tag_assignment::TagAssignmentPopup;
-use eframe::egui::{self, Color32, RichText, TextStyle};
+use eframe::egui::{ self, Color32, RichText, TextStyle };
 use rusqlite::Connection;
 use std::collections::HashMap;
+use crate::utils::formatting::hex_to_color32;
 
 pub struct MainView;
 
@@ -17,11 +18,12 @@ impl MainView {
         ui_state: &mut UiState,
         darkmode: bool,
         clip_tags: &mut HashMap<i64, Vec<String>>,
-        tags: &[(i64, String)],
+        tags: &[(i64, String, Option<String>)] // Updated to include color
     ) {
         ui.add_space(10.0);
 
-        egui::ScrollArea::vertical()
+        egui::ScrollArea
+            ::vertical()
             .auto_shrink([false; 2])
             .show(ui, |ui| {
                 let mut deleted_id: Option<i64> = None;
@@ -33,7 +35,7 @@ impl MainView {
                             RichText::new("No clips found.")
                                 .color(Color32::DARK_GRAY)
                                 .italics()
-                                .text_style(TextStyle::Heading),
+                                .text_style(TextStyle::Heading)
                         );
                     });
                 }
@@ -43,8 +45,24 @@ impl MainView {
                         continue;
                     }
 
+                    // Build the tag_colors map once before rendering cards:
+                    let tag_colors: HashMap<String, Color32> = tags
+                        .iter()
+                        .filter_map(|tag| {
+                            tag.2.as_ref().and_then(|hex| {
+                                hex_to_color32(hex).map(|color| (tag.1.clone(), color)) // Use tag.1.clone() here for key
+                            })
+                        })
+                        .collect();
+
                     let response = ClipCard::show(
-                        ui, ctx, clip, ui_state.show_content, darkmode, clip_tags
+                        ui,
+                        ctx,
+                        clip,
+                        ui_state.show_content,
+                        darkmode,
+                        clip_tags,
+                        &tag_colors
                     );
 
                     if response.delete_requested {
@@ -67,20 +85,14 @@ impl MainView {
 
                 // Handle tag assignment popup
                 if let Some(clip_id) = ui_state.show_tag_popup_for {
-                    TagAssignmentPopup::show(
-                        ctx, 
-                        clip_id, 
-                        ui_state, 
-                        db, 
-                        clip_tags, 
-                        tags
-                    );
+                    TagAssignmentPopup::show(ctx, clip_id, ui_state, db, clip_tags, tags);
                 }
 
                 // Handle deletions and pins
                 if let Some(id) = deleted_id {
                     let _ = db::delete_clip(db, id);
-                    *clips = db::load_recent_clips(db, 20)
+                    *clips = db
+                        ::load_recent_clips(db, 20)
                         .unwrap_or_default()
                         .into_iter()
                         .map(Clip::from_tuple)
@@ -89,7 +101,8 @@ impl MainView {
 
                 if let Some(id) = pinned_id {
                     let _ = db::toggle_pin_clip(db, id);
-                    *clips = db::load_recent_clips(db, 20)
+                    *clips = db
+                        ::load_recent_clips(db, 20)
                         .unwrap_or_default()
                         .into_iter()
                         .map(Clip::from_tuple)

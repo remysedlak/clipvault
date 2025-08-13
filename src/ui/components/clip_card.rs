@@ -1,11 +1,12 @@
 use crate::models::Clip;
 use crate::utils::formatting::format_timestamp;
-use eframe::egui::{self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle};
+use eframe::egui::{ self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle };
 use std::collections::HashMap;
 
 pub struct ClipCard;
 
 impl ClipCard {
+    /// Added `tag_colors` mapping tag name -> Color32 for showing colors
     pub fn show(
         ui: &mut egui::Ui,
         ctx: &egui::Context,
@@ -13,9 +14,10 @@ impl ClipCard {
         show_content: bool,
         darkmode: bool,
         clip_tags: &HashMap<i64, Vec<String>>,
+        tag_colors: &HashMap<String, Color32> // NEW param
     ) -> ClipCardResponse {
         let mut response = ClipCardResponse::default();
-        
+
         if clip.is_empty() {
             return response;
         }
@@ -25,28 +27,30 @@ impl ClipCard {
             .rounding(8.0)
             .inner_margin(egui::Margin::symmetric(10.0, 10.0))
             .outer_margin(egui::Margin::symmetric(20.0, 0.0))
-            .fill(if darkmode {
-                Color32::from_rgb(40, 40, 40)
-            } else {
-                Color32::from_rgb(240, 240, 240)
-            })
+            .fill(
+                if darkmode {
+                    Color32::from_rgb(40, 40, 40)
+                } else {
+                    Color32::from_rgb(240, 240, 240)
+                }
+            )
             .stroke(Stroke::new(1.0, Color32::BLACK))
             .show(ui, |ui| {
                 // Content section
                 EguiFrame::none().show(ui, |ui| {
                     ui.vertical(|ui| {
-                        // ui.label("📝");
                         ui.add(
-                            Label::new(if show_content {
-                                RichText::new(&clip.content)
-                                    .monospace()
-                                    .text_style(TextStyle::Body)
-                            } else {
-                                RichText::new("Content hidden")
-                                    .monospace()
-                                    .text_style(TextStyle::Body)
-                            })
-                            .wrap(),
+                            Label::new(
+                                if show_content {
+                                    RichText::new(&clip.content)
+                                        .monospace()
+                                        .text_style(TextStyle::Body)
+                                } else {
+                                    RichText::new("Content hidden")
+                                        .monospace()
+                                        .text_style(TextStyle::Body)
+                                }
+                            ).wrap()
                         );
                     });
                 });
@@ -55,56 +59,59 @@ impl ClipCard {
                 ui.separator();
                 // Tags section
                 ui.horizontal(|ui| {
-                    // ui.label("tags: ");
                     ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
-                        // Show existing tags
                         if let Some(tags) = clip_tags.get(&clip.id) {
                             for tag_name in tags {
-                                if tag_name == "emotion" {
-                                    continue;
-                                }
-                                
-                                let visuals = ui.visuals();
-                                let bg_color = visuals.widgets.inactive.bg_fill;
-                                let text_color = visuals.text_color();
-                                let stroke = visuals.widgets.inactive.bg_stroke;
+                                // Lookup the color or fallback
+                                let tag_color = tag_colors
+                                    .get(tag_name)
+                                    .copied()
+                                    .unwrap_or_else(|| {
+                                        if darkmode {
+                                            Color32::LIGHT_GRAY
+                                        } else {
+                                            Color32::DARK_GRAY
+                                        }
+                                    });
 
-                                egui::Frame::none()
-                                    .fill(bg_color)
-                                    .stroke(stroke)
+                                egui::Frame
+                                    ::none()
+                                    .fill(tag_color)
+                                    .stroke(Stroke::new(1.0, contrast_color(tag_color)))
                                     .rounding(egui::Rounding::same(6.0))
-                                    .inner_margin(egui::Margin::symmetric(6.0, 4.0))
+                                    .inner_margin(egui::Margin::symmetric(4.0, 4.0))
                                     .show(ui, |ui| {
                                         ui.label(
-                                            egui::RichText::new(tag_name)
-                                                .color(text_color)
-                                                .strong(),
+                                            egui::RichText
+                                                ::new(tag_name)
+                                                .color(contrast_color(tag_color))
+                                                .strong()
                                         );
                                     });
                             }
                         }
-                        
+
                         if ui.button("+").on_hover_text("Add tags to clip.").clicked() {
                             response.add_tag_requested = true;
                         }
-                        
+
                         ui.set_max_width(200.0);
                     });
                 });
-                
+
                 // Timestamp and action buttons
                 ui.horizontal(|ui| {
                     ui.label("🕒");
                     ui.monospace(format_timestamp(clip.timestamp));
-                    
+
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         ui.set_max_width(200.0);
 
-                        // Copy button
-                        if ui
-                            .add_sized([35.0, 20.0], egui::Button::new("📋"))
-                            .on_hover_text("Copy this text to clipboard")
-                            .clicked()
+                        if
+                            ui
+                                .add_sized([35.0, 20.0], egui::Button::new("📋"))
+                                .on_hover_text("Copy this text to clipboard")
+                                .clicked()
                         {
                             ctx.output_mut(|o| {
                                 o.copied_text = clip.content.clone();
@@ -112,32 +119,32 @@ impl ClipCard {
                             response.copied = true;
                         }
 
-                        // Delete button
-                        if ui
-                            .add_sized([35.0, 20.0], egui::Button::new("🗑"))
-                            .on_hover_text("Delete this entry")
-                            .clicked()
+                        if
+                            ui
+                                .add_sized([35.0, 20.0], egui::Button::new("🗑"))
+                                .on_hover_text("Delete this entry")
+                                .clicked()
                         {
                             response.delete_requested = true;
                         }
 
-                        // Pin/Unpin button
                         let pin_label = if clip.pinned { "📌 Unpin" } else { "📌" };
-                        if ui
-                            .add_sized([35.0, 20.0], egui::Button::new(pin_label))
-                            .on_hover_text(if clip.pinned {
-                                "Unpin this entry"
-                            } else {
-                                "Pin this entry"
-                            })
-                            .clicked()
+                        if
+                            ui
+                                .add_sized([35.0, 20.0], egui::Button::new(pin_label))
+                                .on_hover_text(
+                                    if clip.pinned {
+                                        "Unpin this entry"
+                                    } else {
+                                        "Pin this entry"
+                                    }
+                                )
+                                .clicked()
                         {
                             response.pin_toggled = true;
                         }
                     });
                 });
-
-                
             });
 
         response
@@ -150,4 +157,14 @@ pub struct ClipCardResponse {
     pub delete_requested: bool,
     pub pin_toggled: bool,
     pub add_tag_requested: bool,
+}
+
+/// Helper for contrasting text color on a colored background
+fn contrast_color(bg: Color32) -> Color32 {
+    let brightness = 0.299 * (bg.r() as f32) + 0.587 * (bg.g() as f32) + 0.114 * (bg.b() as f32);
+    if brightness > 186.0 {
+        Color32::BLACK
+    } else {
+        Color32::WHITE
+    }
 }

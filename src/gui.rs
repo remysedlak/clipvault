@@ -128,7 +128,7 @@ impl eframe::App for ClipVaultApp {
                     &self
                         .tags
                         .iter()
-                        .map(|t| (t.id, t.name.clone()))
+                        .map(|t| (t.id, t.name.clone(), t.color.clone()))
                         .collect::<Vec<_>>(),
                 );
             }
