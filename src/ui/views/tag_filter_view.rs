@@ -20,7 +20,7 @@ impl TagFilterView {
         TopBottomPanel::top("tag_filter_top_panel")
             .min_height(25.0)
             .show(ctx, |ui| {
-                ui.add_space(8.0);
+                ui.add_space(2.0);
                 ui.horizontal(|ui| {
                     ui.heading("Tag Manager");
 
@@ -40,7 +40,7 @@ impl TagFilterView {
                         }
                     });
                 });
-                ui.add_space(8.0);
+                ui.add_space(2.0);
             });
 
         TopBottomPanel::bottom("tag_filter_bottom_panel")
