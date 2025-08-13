@@ -21,7 +21,6 @@ impl SettingsView {
         let mut response = SettingsResponse::default();
 
         let visuals = ui.visuals();
-        let text_color = visuals.text_color();
         let stroke = visuals.widgets.inactive.bg_stroke;
         ui.add_space(10.0);
 
@@ -29,15 +28,15 @@ impl SettingsView {
         TopBottomPanel::top("settings_top_panel")
             .min_height(25.0)
             .show(ctx, |ui| {
-                ui.add_space(8.0);
+                ui.add_space(2.0);
                 ui.horizontal(|ui| {
-                    ui.heading(RichText::new("Settings").size(24.0));
+                    ui.heading("Application Settings");
 
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         let back_button = ui.add_sized(
-                            [120.0, 32.0],
+                            [60.0, 20.0],
                             egui::Button
-                                ::new(RichText::new("Back to Clips").size(14.0))
+                                ::new("Back to Clips...")
                                 .rounding(Rounding::same(6.0))
                         );
 
@@ -46,7 +45,7 @@ impl SettingsView {
                         }
                     });
                 });
-                ui.add_space(8.0);
+                ui.add_space(2.0);
             });
 
         // Central Panel: Settings options with improved styling
@@ -63,14 +62,6 @@ impl SettingsView {
                         .inner_margin(egui::Margin::same(32.0))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
-                                // Section title
-                                ui.label(
-                                    RichText::new("Application Settings")
-                                        .size(18.0)
-                                        .color(text_color)
-                                );
-
-                                ui.add_space(24.0);
 
                                 // Reset Settings Button
                                 let reset_button = ui.add_sized(
