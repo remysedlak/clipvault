@@ -18,6 +18,7 @@ A clipboard manager written in Rust with offline local storage.
 
 - **To run the main application:**
     ```sh
+    cargo build --release
     cargo run --bin clipvault
     ```
 
