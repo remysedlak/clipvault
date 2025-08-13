@@ -20,6 +20,7 @@ impl TagAssignmentPopup {
             .resizable(false)
             .show(ctx, |ui| {
                 ui.label("Select a tag to assign:");
+                ui.separator();
 
                 let assigned = clip_tags
                     .get(&clip_id)
@@ -27,19 +28,23 @@ impl TagAssignmentPopup {
                     .unwrap_or_default();
                 egui::ScrollArea::vertical()
                     .show(ui, |ui| {
+                        ui.add_space(4.0);
                         for (tag_id, tag_name, _) in tags {
                             if !assigned.contains(tag_name) {
                                 let is_selected = ui_state.selected_tag_id == Some(*tag_id);
                                 if ui
                                     .selectable_label(is_selected, tag_name)
+
                                     .clicked()
                                 {
                                     ui_state.selected_tag_id = Some(*tag_id);
                                 }
                             }
+                            
                         }
+                        ui.add_space(4.0);
                     });
-
+                ui.separator();
                 ui.horizontal(|ui| {
                     if ui.button("Assign").clicked() {
                         if let Some(tag_id) = ui_state.selected_tag_id {
