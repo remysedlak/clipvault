@@ -1,4 +1,4 @@
-use eframe::egui::{self, Layout};
+use eframe::egui::{ self, Layout };
 use egui_extras::DatePickerButton;
 use chrono::NaiveDate;
 
@@ -9,10 +9,10 @@ impl TopPanel {
         ui: &mut egui::Ui,
         date: &mut NaiveDate,
         show_content: &mut bool,
-        darkmode: &mut bool,
+        darkmode: &mut bool
     ) -> TopPanelResponse {
         let mut response = TopPanelResponse::default();
-        ui.add_space(4.0);
+        ui.add_space(2.0);
         ui.horizontal(|ui| {
             ui.heading("ClipVault");
             ui.separator();
@@ -25,63 +25,50 @@ impl TopPanel {
                 if ui.button(settings_icon).on_hover_text("Settings").clicked() {
                     response.settings = true;
                 }
-                if ui
-                    .button(show_content_label)
-                    .on_hover_text("Show or hide the content of all clips")
-                    .clicked()
+                if
+                    ui
+                        .button(show_content_label)
+                        .on_hover_text("Show or hide the content of all clips")
+                        .clicked()
                 {
                     *show_content = !*show_content;
                 }
-                
-                
 
                 // Tags button
                 if ui.button("🗁").on_hover_text("View tags").clicked() {
                     response.show_tags = true;
                 }
 
-                
-
-                
-                
                 // Date picker
-                if ui
-                    .add(
-                        DatePickerButton::new(date)
-                            .show_icon(true)
-                            .highlight_weekends(false)
-                            .format(""),
-                    )
-                    .on_hover_text("Select a date to filter clips")
-                    .changed()
+                if
+                    ui
+                        .add(
+                            DatePickerButton::new(date)
+                                .show_icon(true)
+                                .highlight_weekends(false)
+                                .format("")
+                        )
+                        .on_hover_text("Select a date to filter clips")
+                        .changed()
                 {
                     response.date_changed = true;
                 }
-                
+
                 // Dark/Light mode toggle
                 let mode_label = if *darkmode { "🌙" } else { "🔆" };
-                if ui
-                    .button(mode_label)
-                    .on_hover_text("Toggle dark/light mode")
-                    .clicked()
-                {
+                if ui.button(mode_label).on_hover_text("Toggle dark/light mode").clicked() {
                     *darkmode = !*darkmode;
                 }
 
                 // Refresh button
-                if ui
-                    .button("🔄")
-                    .on_hover_text("Refresh clipboard entries.")
-                    .clicked()
-                {
+                if ui.button("🔄").on_hover_text("Refresh clipboard entries.").clicked() {
                     response.refresh_requested = true;
                 }
             });
         });
-        
-        ui.add_space(4.0);
+
+        ui.add_space(2.0);
         response
-        
     }
 }
 

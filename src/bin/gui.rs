@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let gui_db = db::init_db()?;
 
     eframe::run_native(
-        "ClipVault GUI",
+        "ClipVault",
         native_options,
         Box::new(|_cc| Ok(Box::new(gui::ClipVaultApp::new(gui_db)))),
     )?;

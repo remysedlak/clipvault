@@ -20,12 +20,11 @@ impl MainView {
         clip_tags: &mut HashMap<i64, Vec<String>>,
         tags: &[(i64, String, Option<String>)] // Updated to include color
     ) {
-        ui.add_space(10.0);
-
         egui::ScrollArea
             ::vertical()
             .auto_shrink([false; 2])
             .show(ui, |ui| {
+                ui.add_space(12.0);
                 let mut deleted_id: Option<i64> = None;
                 let mut pinned_id: Option<i64> = None;
 
