@@ -22,8 +22,7 @@ pub struct UiState {
     pub selected_tag_id: Option<i64>,
     pub show_delete_confirmation: bool,
     pub search_query: String,
-    pub auto_hide_clips: bool, // New field for auto-hide clips
-    pub hide_clips_initialized: bool,
+    pub auto_hide_clips: bool, 
 }
 
 impl Default for UiState {
@@ -41,8 +40,7 @@ impl Default for UiState {
             search_query: String::new(),
             edit_tag_name: None,
             edit_tag_color: None,
-            auto_hide_clips: settings.auto_hide_clips, // remember user preference
-            hide_clips_initialized: true, // not really needed now
+            auto_hide_clips: settings.auto_hide_clips,
         }
     }
 }
