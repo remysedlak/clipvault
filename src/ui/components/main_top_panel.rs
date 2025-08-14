@@ -68,7 +68,7 @@ impl TopPanel {
                     .hint_text("Search...");
                 
                 // Add text edit and get egui's response
-                let ui_response = ui.add_sized([80.0, 20.0], text_edit); 
+                let ui_response = ui.add_sized([100.0, 20.0], text_edit); 
 
                 // Signal to ClipVaultApp if the search text changed
                 if ui_response.changed() {

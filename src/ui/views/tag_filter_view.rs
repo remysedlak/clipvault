@@ -109,9 +109,9 @@ impl TagFilterView {
                     // Create the tags table
                     TableBuilder::new(ui)
                         .striped(true)
-                        .resizable(false)
+                        .auto_shrink(false)
                         .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-                        .column(Column::remainder()) // Tag name
+                        .column(Column::remainder().at_most(200.0)) // Tag name
                         .column(Column::exact(40.0)) // Padding
                         .column(Column::exact(80.0)) // Clip count
                         .column(Column::exact(80.0)) // Color picker
