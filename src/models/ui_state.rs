@@ -22,6 +22,8 @@ pub struct UiState {
     pub selected_tag_id: Option<i64>,
     pub show_delete_confirmation: bool,
     pub search_query: String,
+    pub auto_hide_clips: bool, // New field for auto-hide clips
+    pub hide_clips_initialized: bool,
 }
 
 impl Default for UiState {
@@ -29,7 +31,7 @@ impl Default for UiState {
         let (settings, _) = Settings::load();
         Self {
             ui_mode: settings.mode,
-            show_content: false,
+            show_content: !settings.auto_hide_clips, // <-- initial value based on settings
             date: chrono::Utc::now().date_naive(),
             user_input: String::new(),
             show_create_popup: false,
@@ -37,8 +39,10 @@ impl Default for UiState {
             selected_tag_id: None,
             show_delete_confirmation: false,
             search_query: String::new(),
-            edit_tag_name: None, // Initialize with None
-            edit_tag_color: None, // Initialize with None
+            edit_tag_name: None,
+            edit_tag_color: None,
+            auto_hide_clips: settings.auto_hide_clips, // remember user preference
+            hide_clips_initialized: true, // not really needed now
         }
     }
 }

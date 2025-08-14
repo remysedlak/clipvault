@@ -51,6 +51,9 @@ impl SettingsView {
                         .inner_margin(egui::Margin::same(32))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
+                                
+                                ui.checkbox(&mut ui_state.auto_hide_clips, "Hide clips on startup");
+                                ui.add_space(32.0);
                                 // Reset Settings Button
                                 let reset_button = ui.add_sized(
                                     [280.0, 48.0],

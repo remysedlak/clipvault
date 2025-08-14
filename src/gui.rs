@@ -67,6 +67,7 @@ impl eframe::App for ClipVaultApp {
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
         self.settings.theme = if self.darkmode { Theme::Dark } else { Theme::Light }; // visual settings
         self.settings.mode = self.ui_state.ui_mode; // last page visited
+        self.settings.auto_hide_clips = self.ui_state.auto_hide_clips; // save auto-hide setting
         let _ = self.settings.save(&self.settings_path);
     }
 

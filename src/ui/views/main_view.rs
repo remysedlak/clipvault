@@ -61,7 +61,7 @@ impl MainView {
                         ui_state.show_content,
                         darkmode,
                         clip_tags,
-                        &tag_colors
+                        &tag_colors,
                     );
 
                     if response.delete_requested {

@@ -1,4 +1,4 @@
-use crate::models::Clip;
+use crate::{models::Clip};
 use crate::utils::formatting::format_timestamp;
 use eframe::egui::{ self, Color32, Frame as EguiFrame, Label, Layout, RichText, Stroke, TextStyle };
 use std::{collections::HashMap};
@@ -14,7 +14,7 @@ impl ClipCard {
         show_content: bool,
         darkmode: bool,
         clip_tags: &HashMap<i64, Vec<String>>,
-        tag_colors: &HashMap<String, Color32> // NEW param
+        tag_colors: &HashMap<String, Color32>,
     ) -> ClipCardResponse {
         let mut response = ClipCardResponse::default();
 

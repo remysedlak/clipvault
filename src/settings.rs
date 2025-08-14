@@ -9,6 +9,7 @@ use crate::models::UiMode;
 pub struct Settings {
     pub theme: Theme,
     pub mode: UiMode,
+    pub auto_hide_clips: bool, 
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Copy)]
@@ -23,6 +24,7 @@ impl Default for Settings {
         Settings {
             theme: Theme::Light,
             mode: UiMode::Main,
+            auto_hide_clips: false,
         }
     }
 }
