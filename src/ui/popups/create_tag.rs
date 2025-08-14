@@ -39,13 +39,12 @@ impl CreateTagPopup {
 
                 ui.horizontal(|ui| {
                     ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-                        if ui.button("Submit").clicked() {
-                            Self::submit_tag(ui_state, db, tags);
-                        }
-
                         if ui.button("Cancel").clicked() {
                             ui_state.show_create_popup = false;
                             ui_state.user_input.clear();
+                        }
+                        if ui.button("Save").clicked() {
+                            Self::submit_tag(ui_state, db, tags);
                         }
                     });
                     ui.add_space(8.0);
