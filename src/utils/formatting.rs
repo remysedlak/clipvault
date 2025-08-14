@@ -1,6 +1,12 @@
 use chrono::{DateTime, Datelike, Local};
 use eframe::egui::Color32;
 
+// Helper: convert Color32 to hex string like "#RRGGBB"
+#[allow(dead_code)]
+pub fn color32_to_hex(color: Color32) -> String {
+    format!("#{:02X}{:02X}{:02X}", color.r(), color.g(), color.b())
+}
+
 // Convert a hex color string (e.g., "#RRGGBB") to a Color32
 pub fn hex_to_color32(hex: &str) -> Option<Color32> {
     if hex.len() != 7 || !hex.starts_with('#') {

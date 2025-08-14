@@ -108,7 +108,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     tray_menu.append(&open_item)?;
     tray_menu.append(&quit_item)?;
 
-    // Load icon (try different approaches)
+    // Load icon 
     let icon = load_icon_embedded();
 
     let _tray_icon = TrayIconBuilder::new()

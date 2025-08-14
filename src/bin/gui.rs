@@ -1,3 +1,4 @@
+// #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 use clipvault::{db, gui};
 use eframe::{NativeOptions, egui, icon_data::from_png_bytes};
 

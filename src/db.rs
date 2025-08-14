@@ -3,6 +3,17 @@ use std::collections::HashMap;
 use directories::ProjectDirs;
 use std::path::PathBuf;
 
+/// Update a tag's name and color by tag ID
+pub fn update_tag(conn: &Connection, tag_id: i64, new_name: &str, new_color: &str) -> Result<()> {
+    println!("Updating tag ID {}: name='{}', color='{}'", tag_id, new_name, new_color);
+    conn.execute(
+        "UPDATE tags SET name = ?1, color = ?2 WHERE id = ?3",
+        params![new_name, new_color, tag_id],
+    )?;
+    Ok(())
+}
+
+
 // Function to get the path to the database file from AppData
 pub fn get_db_path() -> PathBuf {
     let proj_dirs = ProjectDirs::from("com", "remysedlak", "clipvault")

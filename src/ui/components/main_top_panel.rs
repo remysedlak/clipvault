@@ -46,7 +46,7 @@ impl TopPanel {
                                 .highlight_weekends(false)
                                 .format("")
                         )
-                        .on_hover_text("Select a date to filter clips")
+                        .on_hover_text("Filter by date")
                         .changed()
                 {
                     response.date_changed = true;

@@ -1,6 +1,7 @@
 use crate::db;
 use crate::models::{ Clip, Tag, UiState, UiMode };
 use crate::ui::popups::create_tag::CreateTagPopup;
+use crate::ui::popups::edit_tag_name::EditTagPopup;
 use crate::utils::formatting::hex_to_color32;
 use eframe::egui::{ self, Layout, TopBottomPanel, CentralPanel, Color32, RichText, TextStyle };
 use egui_extras::{ Column, TableBuilder };
@@ -57,6 +58,7 @@ impl TagFilterView {
                                 .italics()
                         );
                     } else {
+                        ui.add_space(2.0);
                         ui.label(
                             RichText::new(
                                 "Click a tag to filter clips, or manage colors and settings"
@@ -66,7 +68,7 @@ impl TagFilterView {
                         );
                     }
 
-                    ui.add_space(8.0);
+                    ui.add_space(4.0);
 
                     if
                         ui
@@ -110,12 +112,16 @@ impl TagFilterView {
                         .resizable(false)
                         .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
                         .column(Column::remainder()) // Tag name
-                        .column(Column::remainder()) // Clip count
-                        .column(Column::remainder()) // Color picker
-                        .column(Column::exact(60.0)) // Delete button
+                        .column(Column::exact(40.0)) // Padding
+                        .column(Column::exact(80.0)) // Clip count
+                        .column(Column::exact(80.0)) // Color picker
+                        .column(Column::remainder()) // Actions button
                         .header(30.0, |mut header| {
                             header.col(|ui| {
                                 ui.strong("Tag Name");
+                            });
+                            header.col(|ui| {
+                                ui.strong("");
                             });
                             header.col(|ui| {
                                 ui.strong("Clips");
@@ -124,7 +130,7 @@ impl TagFilterView {
                                 ui.strong("Color");
                             });
                             header.col(|ui| {
-                                ui.strong("Delete");
+                                ui.strong("Actions");
                             });
                         })
                         .body(|mut body| {
@@ -151,9 +157,11 @@ impl TagFilterView {
                                             ui_state.ui_mode = UiMode::Main;
                                         }
                                     });
+                                    row.col(|_ui| {
+
+                                    });
 
                                     // Clip count column
-
                                     row.col(|ui| {
                                         if let Ok(count) = db::count_clips_for_tag(db, &tag.id) {
                                             ui.label(
@@ -171,36 +179,25 @@ impl TagFilterView {
                                     });
 
                                     // Color picker column
+                                    // Color column (static circle)
                                     row.col(|ui| {
-                                        let mut color = tag.color
+                                        let color = tag.color
                                             .as_ref()
                                             .and_then(|hex| hex_to_color32(hex))
-                                            .unwrap_or_else(|| {
+                                            .unwrap_or_else(|| (
                                                 if ui.visuals().dark_mode {
                                                     Color32::LIGHT_GRAY
                                                 } else {
                                                     Color32::DARK_GRAY
                                                 }
-                                            });
+                                            ));
 
-                                        if
-                                            ui
-                                                .color_edit_button_srgba(&mut color)
-                                                .on_hover_text("Set tag color")
-                                                .changed()
-                                        {
-                                            tag.color = Some(color32_to_hex(color));
-                                            let color_ref = tag.color.as_deref();
-                                            if
-                                                let Err(e) = db::update_tag_color(
-                                                    db,
-                                                    tag.id,
-                                                    color_ref
-                                                )
-                                            {
-                                                eprintln!("Failed to update tag color: {}", e);
-                                            }
-                                        }
+                                        // Draw a filled circle of fixed radius
+                                        let (rect, _response) = ui.allocate_exact_size(
+                                            egui::vec2(20.0, 20.0),
+                                            egui::Sense::hover()
+                                        );
+                                        ui.painter().circle_filled(rect.center(), 8.0, color);
                                     });
 
                                     // Delete button column
@@ -217,6 +214,20 @@ impl TagFilterView {
                                                 tags_to_delete.push(index);
                                                 refresh_needed = true;
                                             }
+                                        }
+                                        ui.add_space(4.0);
+                                        if
+                                            ui
+                                                .small_button("\u{270F}") // pencil emoji
+                                                .on_hover_text("Edit tag")
+                                                .clicked()
+                                        {
+                                            ui_state.show_tag_popup_for = Some(tag.id);
+                                            ui_state.edit_tag_name = Some(tag.name.clone());
+                                            ui_state.edit_tag_color = tag.color
+                                                .as_ref()
+                                                .and_then(|hex| hex_to_color32(hex))
+                                                .or(Some(Color32::GRAY));
                                         }
                                     });
                                 });
@@ -239,10 +250,8 @@ impl TagFilterView {
         if ui_state.show_create_popup {
             CreateTagPopup::show(ctx, ui_state, db, tags);
         }
+        if ui_state.show_tag_popup_for.is_some() {
+            EditTagPopup::show(ctx, ui_state, db, tags);
+        }
     }
-}
-
-// Helper: convert Color32 to hex string like "#RRGGBB"
-fn color32_to_hex(color: Color32) -> String {
-    format!("#{:02X}{:02X}{:02X}", color.r(), color.g(), color.b())
 }
