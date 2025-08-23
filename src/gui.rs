@@ -95,13 +95,24 @@ impl eframe::App for ClipVaultApp {
                 );
 
                 if response.search_query_changed {
-                    self.clips = db
+                    if self.ui_state.search_query != "" {
+                        self.clips = db
                         ::search_clips(&self.db, &self.ui_state.search_query)
-                        .unwrap_or_default()
-                        .into_iter()
-                        .map(Clip::from_tuple)
-                        .collect();
-                    self.ui_state.ui_mode = UiMode::Main;
+                            .unwrap_or_default()
+                            .into_iter()
+                            .map(Clip::from_tuple)
+                            .collect();
+                        self.ui_state.ui_mode = UiMode::Main;
+                    }
+                    else {
+                        self.clips = db
+                        ::load_recent_clips(&self.db, 20)
+                            .unwrap_or_default()
+                            .into_iter()
+                            .map(Clip::from_tuple)
+                            .collect();
+                        self.ui_state.ui_mode = UiMode::Main;
+                    }
                 }
 
                 if response.show_tags {

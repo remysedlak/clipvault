@@ -15,7 +15,7 @@ impl TopPanel {
         let mut response = TopPanelResponse::default();
         ui.add_space(2.0);
         ui.horizontal(|ui| {
-            ui.heading("Recent history");
+            ui.heading("Saved clips");
 
             ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                 // Show/Hide content toggle
@@ -83,6 +83,7 @@ impl TopPanel {
                 if ui_response.changed() {
                     response.search_query_changed = true;
                 }
+
             });
 
             });
