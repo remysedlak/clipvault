@@ -65,7 +65,10 @@ impl TopPanel {
 
                 // Add new clip
                 let add_clip_label = { "+" };
-                if ui.button(add_clip_label).on_hover_text("Save text").clicked() {
+                if ui.button(add_clip_label)
+                    .on_hover_text("Save text")
+                    .clicked()
+                {
                     response.add_clip = !response.add_clip;
                 }
 

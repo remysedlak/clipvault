@@ -23,8 +23,7 @@ impl CreateClip {
 
                     let id = ui.make_persistent_id("create_tag_text_input");
                     let has_focus_before = ui.memory(|mem| mem.has_focus(id));
-                    let response =
-                        ui.add(egui::TextEdit::multiline(&mut ui_state.user_input).id(id));
+                    let response = ui.add(egui::TextEdit::multiline(&mut ui_state.user_input).id(id));
                     // Auto-focus first frame
                     if !has_focus_before {
                         response.request_focus();

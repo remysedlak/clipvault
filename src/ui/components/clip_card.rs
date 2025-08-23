@@ -108,7 +108,7 @@ impl ClipCard {
                 // Timestamp and action buttons
                 ui.horizontal(|ui| {
                     ui.label("🕒");
-                    ui.monospace(format_timestamp(clip.timestamp));
+                    ui.weak(format_timestamp(clip.timestamp));
 
                     ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                         ui.set_max_width(200.0);
