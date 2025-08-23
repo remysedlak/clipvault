@@ -95,15 +95,15 @@ impl ClipCard {
                             }
                         }
 
-                        if ui.add_sized(BUTTON_SIZE, egui::Button::new("+")).on_hover_text("Add tags to clip.").clicked() {
-                            response.add_tag_requested = true;
-                        }
+
 
                         ui.set_max_width(200.0);
                     });
                 });
+                if let Some(_tags) = clip_tags.get(&clip.id) {
+                    ui.add_space(6.0);
+                }
 
-                ui.add_space(6.0);
 
                 // Timestamp and action buttons
                 ui.horizontal(|ui| {
@@ -114,7 +114,7 @@ impl ClipCard {
                         ui.set_max_width(200.0);
                         if
                             ui
-                                .add_sized(BUTTON_SIZE, egui::Button::new("📋"))
+                                .add_sized(BUTTON_SIZE, egui::Button::new("📋").corner_radius(8.0))
                                 .on_hover_text("Copy this text to clipboard")
                                 .clicked()
                         {
@@ -125,7 +125,7 @@ impl ClipCard {
 
                         if
                             ui
-                                .add_sized(BUTTON_SIZE, egui::Button::new("🗑"))
+                                .add_sized(BUTTON_SIZE, egui::Button::new("🗑").corner_radius(8.0))
                                 .on_hover_text("Delete this entry")
                                 .clicked()
                         {
@@ -135,7 +135,7 @@ impl ClipCard {
                         let pin_label = if clip.pinned { "📌 Unpin" } else { "📌" };
                         if
                             ui
-                                .add_sized(BUTTON_SIZE, egui::Button::new(pin_label))
+                                .add_sized(BUTTON_SIZE, egui::Button::new(pin_label).corner_radius(8.0))
                                 .on_hover_text(
                                     if clip.pinned {
                                         "Unpin this entry"
@@ -146,6 +146,10 @@ impl ClipCard {
                                 .clicked()
                         {
                             response.pin_toggled = true;
+                        }
+
+                        if ui.add_sized(BUTTON_SIZE, egui::Button::new("+").corner_radius(8.0)).on_hover_text("Add tags to clip.").clicked() {
+                            response.add_tag_requested = true;
                         }
                     });
                 });
