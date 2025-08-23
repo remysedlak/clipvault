@@ -12,6 +12,7 @@ pub enum UiMode {
 
 pub struct UiState {
     pub ui_mode: UiMode,
+    pub clip_limit: usize,
 
     pub date_filter: NaiveDate,
     pub user_input: String,
@@ -36,6 +37,7 @@ impl Default for UiState {
         Self {
             ui_mode: settings.mode,
             show_content: !settings.auto_hide_clips, // <-- initial value based on settings
+            clip_limit: 20,
             date_filter: chrono::Utc::now().date_naive(),
             user_input: String::new(),
             show_create_tag_popup: false,

@@ -11,11 +11,35 @@ impl TopPanel {
         show_content: &mut bool,
         darkmode: &mut bool,
         search_query: &mut String,
+        clip_limit: &mut usize
     ) -> TopPanelResponse {
         let mut response = TopPanelResponse::default();
         ui.add_space(2.0);
         ui.horizontal(|ui| {
-            ui.heading("Saved clips");
+
+            if search_query == "" && *date == chrono::Utc::now().date_naive() {
+                ui.heading("Recent clips");
+
+            } else {
+                ui.heading("Search results");
+            }
+
+            let mut selected: usize = *clip_limit;
+            let before = selected;
+            egui::ComboBox::from_label("")
+                .width(32.0)
+                .selected_text(format!("{:?}", selected))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut selected, 20, "20");
+                    ui.selectable_value(&mut selected, 50, "50");
+                    ui.selectable_value(&mut selected, 100, "100");
+                }
+                );
+            if selected != before {
+                response.clip_limit_changed = true;
+                *clip_limit = selected;
+            }
+
 
             ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                 // Show/Hide content toggle
@@ -102,4 +126,5 @@ pub struct TopPanelResponse {
     pub settings: bool,
     pub search_query_changed: bool,
     pub add_clip: bool,
+    pub clip_limit_changed: bool,
 }

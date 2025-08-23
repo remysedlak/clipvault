@@ -187,15 +187,18 @@ pub fn update_tag_color(conn: &Connection, tag_id: i64, color: Option<&str>) -> 
     )?;
     Ok(())
 }
-pub fn search_clips(conn: &Connection, query: &str) -> Result<Vec<(i64, String, i64, bool)>> {
+pub fn search_clips(conn: &Connection, query: &str, limit: Option<usize>) -> Result<Vec<(i64, String, i64, bool)>> {
     println!("Searching clips with query: '{}'", query);
+    let limit = limit.unwrap_or(50); // Add default value (e.g., 50)
+
     let mut stmt = conn.prepare(
         "SELECT id, content, timestamp, pinned FROM clips
          WHERE content LIKE ?1
-         ORDER BY pinned DESC, timestamp DESC"
+         ORDER BY pinned DESC, timestamp DESC
+         LIMIT ?2"  // Add LIMIT clause
     )?;
 
-    let rows = stmt.query_map([format!("%{}%", query)], |row| {
+    let rows = stmt.query_map([format!("%{}%", query), limit.to_string()], |row| {
         Ok((
             row.get::<_, i64>(0)?,      // id
             row.get::<_, String>(1)?,   // content
