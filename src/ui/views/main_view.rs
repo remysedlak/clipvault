@@ -29,7 +29,7 @@ impl MainView {
                 let mut deleted_id: Option<i64> = None;
                 let mut pinned_id: Option<i64> = None;
 
-                if ui_state.show_create_clip {
+                if ui_state.show_create_clip_popup {
                     CreateClip::show(ctx, ui_state, db, clips);
                 }
 

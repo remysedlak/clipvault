@@ -42,7 +42,7 @@ impl CreateClip {
 
                         }
                         if ui.button("Cancel").clicked() {
-                            ui_state.show_create_clip = false;
+                            ui_state.show_create_clip_popup = false;
                         }
                     });
                 })
@@ -56,7 +56,7 @@ fn submit_clip(db: &Connection, ui_state: &mut UiState, clips: &mut Vec<Clip>) {
     } else {
         println!("Saved clip: {}, {}", ui_state.user_input, timestamp);
     }
-    ui_state.show_create_clip = false;
+    ui_state.show_create_clip_popup = false;
     ui_state.user_input.clear();
     *clips = db::load_recent_clips(&db, 20)
         .unwrap_or_default()

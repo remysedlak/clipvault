@@ -88,7 +88,7 @@ impl eframe::App for ClipVaultApp {
             egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
                 let response = TopPanel::show(
                     ui,
-                    &mut self.ui_state.date,
+                    &mut self.ui_state.date_filter,
                     &mut self.ui_state.show_content,
                     &mut self.darkmode,
                     &mut self.ui_state.search_query,
@@ -113,7 +113,7 @@ impl eframe::App for ClipVaultApp {
                     if
                         let Ok(clips_for_day) = db::load_clips_for_date(
                             &self.db,
-                            self.ui_state.date
+                            self.ui_state.date_filter
                         )
                     {
                         self.clips = clips_for_day.into_iter().map(Clip::from_tuple).collect();
@@ -134,7 +134,7 @@ impl eframe::App for ClipVaultApp {
                 }
 
                 if response.add_clip {
-                    self.ui_state.show_create_clip = true;
+                    self.ui_state.show_create_clip_popup = true;
                 }
             });
         }

@@ -40,7 +40,7 @@ impl CreateTagPopup {
                 ui.horizontal(|ui| {
                     ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                         if ui.button("Cancel").clicked() {
-                            ui_state.show_create_popup = false;
+                            ui_state.show_create_tag_popup = false;
                             ui_state.user_input.clear();
                         }
                         if ui.button("Save").clicked() {
@@ -63,6 +63,6 @@ impl CreateTagPopup {
                 ui_state.user_input.clear();
             }
         }
-        ui_state.show_create_popup = false;
+        ui_state.show_create_tag_popup = false;
     }
 }

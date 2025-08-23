@@ -76,7 +76,7 @@ impl TagFilterView {
                             .on_hover_text("Add a new tag to organize your clips")
                             .clicked()
                     {
-                        ui_state.show_create_popup = true;
+                        ui_state.show_create_tag_popup = true;
                     }
                 });
                 ui.add_space(10.0);
@@ -254,7 +254,7 @@ impl TagFilterView {
             }
         });
 
-        if ui_state.show_create_popup {
+        if ui_state.show_create_tag_popup {
             CreateTagPopup::show(ctx, ui_state, db, tags);
         }
         if ui_state.show_tag_popup_for.is_some() {
