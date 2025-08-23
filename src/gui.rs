@@ -138,6 +138,7 @@ impl eframe::App for ClipVaultApp {
                         .map(Clip::from_tuple)
                         .collect();
                     self.ui_state.ui_mode = UiMode::Main;
+                    self.ui_state.search_query = "".to_string();
                 }
 
                 if response.settings {
