@@ -27,8 +27,8 @@ impl ClipCard {
         // Outer card frame
         EguiFrame::new()
             .corner_radius(8)
-            .inner_margin(egui::Margin::symmetric(10, 10))
-            .outer_margin(egui::Margin::symmetric(20, 0))
+            .inner_margin(egui::Margin::symmetric(8, 8))
+            .outer_margin(egui::Margin::symmetric(16, 0))
             .fill(
                 if darkmode {
                     Color32::from_rgb(40, 40, 40)
