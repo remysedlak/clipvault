@@ -83,13 +83,14 @@ impl ClipCard {
                                     .fill(tag_color)
                                     .stroke(Stroke::new(1.0, contrast_color(tag_color)))
                                     .corner_radius(egui::CornerRadius::same(6))
-                                    .inner_margin(egui::Margin::symmetric(4, 4))
+                                    .inner_margin(egui::Margin::symmetric(3, 3))
                                     .show(ui, |ui| {
                                         ui.label(
                                             egui::RichText
                                                 ::new(tag_name)
                                                 .color(contrast_color(tag_color))
                                                 .strong()
+                                                .size(12.0)
                                         );
                                     });
                             }
@@ -101,7 +102,7 @@ impl ClipCard {
                     });
                 });
                 if let Some(_tags) = clip_tags.get(&clip.id) {
-                    ui.add_space(6.0);
+                    ui.add_space(4.0);
                 }
 
 
