@@ -111,12 +111,16 @@ impl TagFilterView {
                         .striped(true)
                         .auto_shrink(false)
                         .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+                        .column(Column::exact(40.0)) // Padding
                         .column(Column::remainder().at_most(200.0)) // Tag name
                         .column(Column::exact(40.0)) // Padding
                         .column(Column::exact(80.0)) // Clip count
                         .column(Column::exact(80.0)) // Color picker
                         .column(Column::remainder()) // Actions button
                         .header(30.0, |mut header| {
+                            header.col(|ui| {
+                                ui.strong("");
+                            });
                             header.col(|ui| {
                                 ui.strong("Tag Name");
                             });
@@ -136,6 +140,9 @@ impl TagFilterView {
                         .body(|mut body| {
                             for (index, tag) in tags.iter_mut().enumerate() {
                                 body.row(35.0, |mut row| {
+                                    row.col(|_ui| {
+
+                                    });
                                     // Tag name column (clickable button)
                                     row.col(|ui| {
                                         let button = ui.add_sized(

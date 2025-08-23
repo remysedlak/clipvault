@@ -222,6 +222,11 @@ pub fn search_clips(conn: &Connection, query: &str) -> Result<Vec<(i64, String, 
     Ok(clips)
 }
 
+// pub fn search_tags (conn: &Connection, query: &str) -> Result<Vec(i64, String)> {
+//     
+// }
+
+
 pub fn load_clips_for_tag(conn: &Connection, tag_id: &i64) -> Result<Vec<(i64, String, i64, bool)>> {
     println!("Loading clips for tag_id: {}", tag_id);
     

@@ -2,6 +2,7 @@ use crate::db;
 use crate::models::{ Clip, UiState };
 use crate::ui::components::clip_card::{ ClipCard };
 use crate::ui::popups::tag_assignment::TagAssignmentPopup;
+use crate::ui::popups::create_clip::CreateClip;
 use eframe::egui::{ self, Color32, RichText, TextStyle };
 use rusqlite::Connection;
 use std::collections::HashMap;
@@ -24,9 +25,13 @@ impl MainView {
             ::vertical()
             .auto_shrink([false; 2])
             .show(ui, |ui| {
-                ui.add_space(12.0);
+                ui.add_space(6.0);
                 let mut deleted_id: Option<i64> = None;
                 let mut pinned_id: Option<i64> = None;
+
+                if ui_state.show_create_clip {
+                    CreateClip::show(ctx, ui_state, db, clips);
+                }
 
                 if clips.is_empty() {
                     ui.centered_and_justified(|ui| {
@@ -75,7 +80,7 @@ impl MainView {
                         ui_state.selected_tag_id = None;
                     }
 
-                    ui.add_space(12.0);
+                    ui.add_space(6.0);
 
                     if deleted_id.is_some() || pinned_id.is_some() {
                         break;

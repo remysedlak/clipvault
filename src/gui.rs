@@ -91,7 +91,7 @@ impl eframe::App for ClipVaultApp {
                     &mut self.ui_state.date,
                     &mut self.ui_state.show_content,
                     &mut self.darkmode,
-                    &mut self.ui_state.search_query
+                    &mut self.ui_state.search_query,
                 );
 
                 if response.search_query_changed {
@@ -131,6 +131,10 @@ impl eframe::App for ClipVaultApp {
 
                 if response.settings {
                     self.ui_state.ui_mode = UiMode::Settings;
+                }
+
+                if response.add_clip {
+                    self.ui_state.show_create_clip = true;
                 }
             });
         }

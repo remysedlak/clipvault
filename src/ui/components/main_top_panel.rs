@@ -15,7 +15,7 @@ impl TopPanel {
         let mut response = TopPanelResponse::default();
         ui.add_space(2.0);
         ui.horizontal(|ui| {
-            ui.heading("Recent clipboard history");
+            ui.heading("Recent history");
 
             ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                 // Show/Hide content toggle
@@ -63,6 +63,12 @@ impl TopPanel {
                     response.refresh_requested = true;
                 }
 
+                // Add new clip
+                let add_clip_label = { "+" };
+                if ui.button(add_clip_label).on_hover_text("Save text").clicked() {
+                    response.add_clip = !response.add_clip;
+                }
+
                 ui.horizontal(|ui| {
                 let text_edit = egui::TextEdit::singleline(search_query)
                     .hint_text("Search...");
@@ -91,4 +97,5 @@ pub struct TopPanelResponse {
     pub refresh_requested: bool,
     pub settings: bool,
     pub search_query_changed: bool,
+    pub add_clip: bool,
 }

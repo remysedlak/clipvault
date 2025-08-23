@@ -23,6 +23,7 @@ pub struct UiState {
     pub show_delete_confirmation: bool,
     pub search_query: String,
     pub auto_hide_clips: bool, 
+    pub show_create_clip: bool,
 }
 
 impl Default for UiState {
@@ -41,6 +42,7 @@ impl Default for UiState {
             edit_tag_name: None,
             edit_tag_color: None,
             auto_hide_clips: settings.auto_hide_clips,
+            show_create_clip: false,
         }
     }
 }
