@@ -47,6 +47,7 @@ impl ClipCard {
                                     RichText::new(&clip.content)
                                         .monospace()
                                         .text_style(TextStyle::Body)
+                                        .background_color(ui.visuals().window_fill)
                                 } else {
                                     RichText::new("Content hidden")
                                         .monospace()
